@@ -1,3 +1,7 @@
 # 共通設定
-- include: swap.yml
-# - include: package_update.yml
+# - include: swap.yml
+# - include: selinux.yml
+# - include: package.yml
+# - include: lang.yml
+# - include: users.yml
+- include: sshd.yml

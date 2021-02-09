@@ -1,0 +1,55 @@
+- name: users
+  debug:
+    msg: "{{ workusers }}"
+  tags: users
+
+- name: 作業ユーザー追加
+  user:
+    name: "{{ item.name }}"
+    groups:
+      - "{{ item.groups }}"
+    append: yes
+  with_items:
+    - "{{ workusers }}"
+  tags: users
+
+- name: .vimrc 追加
+  copy:
+    src: vimrc.txt
+    dest: "/home/{{ item.name }}/.vimrc"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: 0644
+  with_items:
+    - "{{ workusers }}"
+  tags: users
+
+- name: .screenrc 追加
+  copy:
+    src: screenrc.txt
+    dest: "/home/{{ item.name }}/.screenrc"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: 0644
+  with_items:
+    - "{{ workusers }}"
+  tags: users
+
+- name: 公開鍵反映
+  authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "{{ lookup('file', 'id_rsa.pub') }}"
+  with_items:
+    - "{{ workusers }}"
+  tags: users
+
+- name: wheel ユーザに sudo 権限を付与
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "^%wheel"
+    line: "%wheel ALL=(ALL) NOPASSWD: ALL"
+    state: present
+    backup: yes
+  become: yes
+  tags: users

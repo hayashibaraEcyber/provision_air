@@ -1,0 +1,12 @@
+- name: SELinux 無効化
+  selinux:
+    state: disabled
+  register: selinux_result
+  tags: selinux
+
+- name: 再起動
+  reboot:
+    msg: "reboot now"
+  when: 
+    - selinux_result.reboot_required
+  tags: selinux

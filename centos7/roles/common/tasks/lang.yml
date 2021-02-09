@@ -1,0 +1,8 @@
+- name: 言語ロケールを日本語に設定
+  shell: localectl set-locale LANG=ja_JP.utf8
+  tags: lang
+
+- name: タイムゾーンをAsia/Tokyoに設定
+  timezone:
+    name: Asia/Tokyo
+  tags: lang

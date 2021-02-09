@@ -1,5 +1,9 @@
 # CMSサーバー
 - hosts: cms
   become: yes
+  vars:
+    workusers:
+      # 作業ユーザー, groupsはカンマ区切りで複数指定可能
+      - {name: "cypochi", groups: "wheel"}
   roles:
     - common

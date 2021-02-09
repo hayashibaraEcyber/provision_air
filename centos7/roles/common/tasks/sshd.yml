@@ -1,0 +1,22 @@
+- name: sshd_config 書き換え
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    backup: yes
+  become: yes
+  with_items:
+    - {regexp: "^#?PermitRootLogin", line: "PermitRootLogin no"}
+    - {regexp: "^#?PermitEmptyPasswords", line: "PermitEmptyPasswords no"}
+    - {regexp: "^#?RSAAuthentication", line: "RSAAuthentication yes"}
+    - {regexp: "^#?PubkeyAuthentication ", line: "PubkeyAuthentication yes"}
+    - {regexp: "^#?AuthorizedKeyFile ", line: "AuthorizedKeyFile .ssh/authorized_keys"}
+    - {regexp: "^#?UseDNS  ", line: "UseDNS no"}
+  tags: sshd
+
+- name: sshd 再起動
+  service:
+    name: sshd
+    state: reloaded
+  tags: sshd
