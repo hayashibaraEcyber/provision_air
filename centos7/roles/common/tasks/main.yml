@@ -1,0 +1,3 @@
+# 共通設定
+- include: swap.yml
+# - include: package_update.yml

@@ -1,0 +1,7 @@
+- name: yum リポジトリ 追加
+  yum: 
+    name:
+      - epel-release
+      - https://repo.ius.io/ius-release-el7.rpm 
+    state: latest
+  tags: yum

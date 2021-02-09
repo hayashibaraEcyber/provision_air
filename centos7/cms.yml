@@ -1,0 +1,5 @@
+# CMSサーバー
+- hosts: cms
+  become: yes
+  roles:
+    - common

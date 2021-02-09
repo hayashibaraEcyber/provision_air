@@ -1,0 +1,90 @@
+- name: スワップイメージパス設定
+  set_fact:
+    swap_image_path: /swap.img
+  tags: swap
+
+- name: スワップ領域チェック
+  shell: free -m | grep 'Swap' | awk '{ print $2 }'
+  register: swap_size
+  ignore_errors: yes
+  tags: swap
+
+- name: スワップ領域チェック結果取得(0ならtrue)
+  set_fact:
+    swap_needed : "{{ swap_size.stdout | int == 0 }}"
+  tags: swap
+
+- name: スワップ領域チェック結果
+  debug:
+    msg: "{{ swap_needed }}"
+  tags: swap
+
+- name: スワップイメージを作成
+  shell: dd if=/dev/zero of={{ swap_image_path }} bs={{ swap_mem_size }} count=4096
+  register: swap_result
+  ignore_errors: yes
+  when:
+    - swap_needed
+  tags: swap
+
+- name: スワップイメージを作成結果
+  debug:
+    msg: "{{ swap_result }}"
+  tags: swap
+
+- name: スワップイメージの存在確認
+  stat:
+    path: "{{ swap_image_path }}"
+  register: swap_file_result
+  tags: swap
+
+- name: スワップイメージをrootユーザーのみ読み書き可能とする
+  file:
+    path: "{{ swap_image_path }}"
+    owner: root
+    group: root
+    mode: 0600
+  when:
+    - swap_needed
+    - swap_file_result.stat.exists is defined
+    - swap_file_result.stat.exists
+  tags: swap
+
+- name: 作成したイメージをスワップ領域とする
+  shell: mkswap {{ swap_image_path }}
+  register: swap_result
+  when:
+    - swap_needed
+    - swap_file_result.stat.exists is defined
+    - swap_file_result.stat.exists
+  ignore_errors: yes
+  tags: swap
+
+- name: 作成したイメージをスワップ領域とする結果
+  debug:
+    msg: "{{ swap_result }}"
+  tags: swap
+
+- name: スワップをアクティブにする
+  shell: swapon {{ swap_image_path }}
+  register: swap_result
+  when:
+    - swap_needed
+    - swap_file_result.stat.exists is defined
+    - swap_file_result.stat.exists
+  ignore_errors: yes
+  tags: swap
+
+- name: スワップをマウント
+  mount:
+    name: swap
+    src: "{{ swap_image_path }}"
+    fstype: swap
+    opts: defaults
+    passno: '0'
+    dump: '0'
+    state: present
+  when:
+    - swap_file_result.stat.exists is defined
+    - swap_file_result.stat.exists
+  tags: swap
