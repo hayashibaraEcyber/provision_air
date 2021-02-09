@@ -1,0 +1,31 @@
+- hosts: all
+  remote_user: vagrant
+  become: yes
+
+  tasks:
+    - name: Yum update all
+      yum: 
+        name: '*'
+        state: latest
+
+    - name: Yum add ius/epel repo
+      yum: 
+        name: 
+          - https://repo.ius.io/ius-release-el7.rpm
+          - epel-release
+        state: latest
+
+    - name: Yum remove git
+      yum: 
+        name: git
+        state: absent
+
+    - name: Yum install git2.24
+      yum: 
+        name: git224
+        state: latest
+
+    - name: Yum install ansible
+      yum: 
+        name: ansible
+        state: latest
