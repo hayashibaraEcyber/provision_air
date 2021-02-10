@@ -1,16 +1,10 @@
-- name: fastestmirror 追加/有効化
-  yum: 
-    name:
-      - yum-plugin-fastestmirror
-    state: latest
-  tags: yum
-
-- name: yum リポジトリ(epel/remi/ius) 追加
+- name: yum リポジトリ(epel/remi/ius/fastestmirror) 追加
   yum: 
     name:
       - epel-release
       - https://rpms.remirepo.net/enterprise/remi-release-7.rpm
       - https://repo.ius.io/ius-release-el7.rpm
+      - yum-plugin-fastestmirror
     state: latest
   tags: yum
 
