@@ -5,7 +5,7 @@
     state: latest
   tags: yum
 
-- name: yum リポジトリ 追加(epel/remi/ius)
+- name: yum リポジトリ(epel/remi/ius) 追加
   yum: 
     name:
       - epel-release
@@ -21,7 +21,7 @@
     state: latest
   tags: yum
 
-- name: 言語パッケージ 追加
+- name: glibc-common 言語パッケージ 追加
   yum: 
     name:
       - glibc-common
@@ -35,23 +35,35 @@
     state: latest
   tags: yum
 
-- name: vim/screenをインストール
+- name: vim/screen/ncdu/popt-devel/dbench 追加
   yum: 
     name:
       - screen
       - vim
+      - ncdu
+      - popt-devel
+      - dbench
     enablerepo: epel
     state: latest
   tags: yum
 
-- name: cronie-noanacron をインストール
+- name: elinks/lynx/sysstat 追加
+  yum: 
+    name:
+      - elinks
+      - lynx
+      - sysstat
+    state: latest
+  tags: yum
+
+- name: cronie-noanacron 追加
   yum: 
     name:
       - cronie-noanacron
     state: latest
   tags: yum
 
-- name: cronie-anacron をアンインストール
+- name: cronie-anacron 削除
   yum: 
     name:
       - cronie-anacron

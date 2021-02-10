@@ -1,0 +1,18 @@
+- name: 使わないサービス停止
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    # CentOS7ではどれも最初から有効ではないが、後で足すために残す
+    - nis-domainname
+    - mdmonitor
+    # - dmraid-activation
+    # - cups
+    # - netfs
+    # - nfs-lock
+    # - rpcbind.socket
+    # - rpcbind.service 
+    # - smartd
+  ignore_errors: yes
+  tags: daemon

@@ -9,3 +9,4 @@
 - include: kernel.yml
 - include: logrotate.yml
 - include: ntp.yml
+- include: daemon.yml

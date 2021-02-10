@@ -7,12 +7,13 @@
     backup: yes
   become: yes
   with_items:
-    - {regexp: "^#?PermitRootLogin", line: "PermitRootLogin no"}
-    - {regexp: "^#?PermitEmptyPasswords", line: "PermitEmptyPasswords no"}
-    - {regexp: "^#?RSAAuthentication", line: "RSAAuthentication yes"}
-    - {regexp: "^#?PubkeyAuthentication ", line: "PubkeyAuthentication yes"}
-    - {regexp: "^#?UseDNS", line: "UseDNS no"}
-    - {regexp: "^#?AddressFamily", line: "AddressFamily inet"}
+    - { regexp: "^#?PermitRootLogin", line: "PermitRootLogin no" }
+    - { regexp: "^#?PermitEmptyPasswords", line: "PermitEmptyPasswords no" }
+    - { regexp: "^#?RSAAuthentication", line: "RSAAuthentication yes" }
+    - { regexp: "^#?PubkeyAuthentication ", line: "PubkeyAuthentication yes" }
+    - { regexp: "^#?UseDNS", line: "UseDNS no" }
+    - { regexp: "^#?AddressFamily", line: "AddressFamily inet" }
+    - { regexp: "^#?DenyUsers", line: "DenyUsers toor administrator administrateur admin adm test guest info mysql user oracle" }
   tags: sshd
 
 - name: sshd 再起動
