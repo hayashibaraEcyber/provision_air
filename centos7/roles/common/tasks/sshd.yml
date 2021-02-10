@@ -11,8 +11,7 @@
     - {regexp: "^#?PermitEmptyPasswords", line: "PermitEmptyPasswords no"}
     - {regexp: "^#?RSAAuthentication", line: "RSAAuthentication yes"}
     - {regexp: "^#?PubkeyAuthentication ", line: "PubkeyAuthentication yes"}
-    - {regexp: "^#?AuthorizedKeyFile ", line: "AuthorizedKeyFile .ssh/authorized_keys"}
-    - {regexp: "^#?UseDNS  ", line: "UseDNS no"}
+    - {regexp: "^#?UseDNS", line: "UseDNS no"}
   tags: sshd
 
 - name: sshd 再起動
