@@ -1,0 +1,8 @@
+/var/log/yum.log {
+    missingok
+    notifempty
+    compress
+    rotate 52
+    weekly
+    create 0600 root root
+}

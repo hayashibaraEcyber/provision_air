@@ -12,6 +12,7 @@
     - {regexp: "^#?RSAAuthentication", line: "RSAAuthentication yes"}
     - {regexp: "^#?PubkeyAuthentication ", line: "PubkeyAuthentication yes"}
     - {regexp: "^#?UseDNS", line: "UseDNS no"}
+    - {regexp: "^#?AddressFamily", line: "AddressFamily inet"}
   tags: sshd
 
 - name: sshd 再起動

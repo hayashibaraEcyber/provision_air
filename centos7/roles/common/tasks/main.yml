@@ -5,3 +5,7 @@
 - include: lang.yml
 - include: users.yml
 - include: sshd.yml
+- include: host.yml
+- include: kernel.yml
+- include: logrotate.yml
+- include: ntp.yml

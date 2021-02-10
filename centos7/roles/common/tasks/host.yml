@@ -1,0 +1,27 @@
+- name: ホスト名確認
+  debug:
+    msg: "{{ server_host_name }}"
+  tags: host
+
+- name: IPアドレス確認
+  debug:
+    msg: "{{ server_ip }}"
+  tags: host
+
+- name: ホスト名設定
+  hostname:
+    name: "{{ server_host_name }}"
+  tags: host
+
+- name: hosts 設定
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    backup: yes
+  become: yes
+  with_items:
+    - { regexp: "^{{ server_ip }}", line: "{{ server_ip }} {{ server_host_name }}" }
+    - { regexp: "^::1", line: "" }
+  tags: host

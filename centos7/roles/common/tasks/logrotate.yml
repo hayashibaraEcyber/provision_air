@@ -1,0 +1,11 @@
+- name: logrotate.d に syslog/yum コピー
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - { src: "syslog.txt", dest: "/etc/logrotate.d/syslog" }
+    - { src: "yumlog.txt", dest: "/etc/logrotate.d/yum" }
+  tags: logrotate

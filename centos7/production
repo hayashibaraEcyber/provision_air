@@ -4,3 +4,10 @@
 
 [web]
 127.0.0.1
+
+[all:vars]
+cms_host_name=production-cms-host
+cms_server_ip=127.0.0.1
+
+web_host_name=production-web-host
+web_server_ip=127.0.0.1

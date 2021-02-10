@@ -1,0 +1,15 @@
+- name: chrony.conf 修正
+  lineinfile:
+    dest: /etc/chrony.conf
+    regexp: "^bindcmdaddress ::1"
+    line: "#bindcmdaddress ::1"
+    state: absent
+    backup: yes
+  become: yes
+  tags: ntp
+
+- name: chronyd 再起動
+  service:
+    name: chronyd
+    state: restarted
+  tags: ntp

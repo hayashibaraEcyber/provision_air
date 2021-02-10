@@ -3,3 +3,7 @@
 
 # スワップ領域(MB)
 swap_mem_size: 1M
+
+# 作業ユーザー, groupsはカンマ区切りで複数指定可能
+workusers:
+  - {name: "cypochi", groups: "wheel"}

@@ -43,3 +43,17 @@
     enablerepo: epel
     state: latest
   tags: yum
+
+- name: cronie-noanacron をインストール
+  yum: 
+    name:
+      - cronie-noanacron
+    state: latest
+  tags: yum
+
+- name: cronie-anacron をアンインストール
+  yum: 
+    name:
+      - cronie-anacron
+    state: absent
+  tags: yum

@@ -4,3 +4,10 @@
 
 [web]
 192.168.33.12
+
+[all:vars]
+cms_host_name=develop-cms-host
+cms_server_ip=192.168.33.12
+
+web_host_name=develop-web-host
+web_server_ip=192.168.33.12
