@@ -1,0 +1,9 @@
+- name: Apache httpd 追加
+  yum: 
+    name:
+      - httpd
+      - httpd-devel
+    state: latest
+  tags:
+    - httpd
+    - package

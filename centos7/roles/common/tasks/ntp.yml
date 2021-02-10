@@ -5,11 +5,12 @@
     line: "#bindcmdaddress ::1"
     state: absent
     backup: yes
-  become: yes
+  register: chrony_conf_result
   tags: ntp
 
 - name: chronyd 再起動
   service:
     name: chronyd
     state: restarted
+  when: chrony_conf_result.changed
   tags: ntp

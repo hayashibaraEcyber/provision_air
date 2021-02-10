@@ -1,3 +1,10 @@
+- name: sshd_config のバックアップ
+  shell: cp -p sshd_config sshd_config.default
+  args:
+    chdir: /etc/ssh/
+    creates: sshd_config.default
+  tags: sshd
+
 - name: sshd_config 書き換え
   lineinfile:
     dest: /etc/ssh/sshd_config
@@ -14,10 +21,12 @@
     - { regexp: "^#?UseDNS", line: "UseDNS no" }
     - { regexp: "^#?AddressFamily", line: "AddressFamily inet" }
     - { regexp: "^#?DenyUsers", line: "DenyUsers toor administrator administrateur admin adm test guest info mysql user oracle" }
+  register: sshd_config_result
   tags: sshd
 
 - name: sshd 再起動
   service:
     name: sshd
     state: reloaded
+  when: sshd_config_result.changed
   tags: sshd

@@ -4,5 +4,7 @@
   vars:
     server_host_name: "{{ cms_host_name }}"
     server_ip: "{{ cms_server_ip }}"
+    max_request: 2048
   roles:
     - common
+    - httpd

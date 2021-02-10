@@ -1,0 +1,94 @@
+- name: apache グループ作成
+  group:
+    name: apache
+    state: present
+  tags:
+    - httpd
+
+- name: apache ユーザー作成
+  user:
+    name: apache
+    group: apache
+    append: yes
+  tags:
+    - httpd
+
+- name: /etc/httpd/conf.d/ に .conf コピー
+  copy:
+    src: "{{ item }}"
+    dest: /etc/httpd/conf.d/
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - notrace.conf
+    - deflate.conf
+  tags:
+    - httpd
+    - config
+
+- name: conf.modules.d のバックアップ
+  shell: cp -p {{ item }} {{ item }}.default
+  args:
+    chdir: /etc/httpd/conf.modules.d/
+    creates: "{{ item }}.default"
+  with_items:
+    - 00-base.conf
+    - 00-proxy.conf
+  tags:
+    - httpd
+    - config
+
+- name: conf.modules.d に .conf コピー
+  copy:
+    src: "{{ item }}"
+    dest: /etc/httpd/conf.modules.d/
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - 00-base.conf
+    - 00-proxy.conf
+  tags:
+    - httpd
+    - config
+
+- name: httpd.conf のバックアップ
+  shell: cp -p httpd.conf httpd.conf.default
+  args:
+    chdir: /etc/httpd/conf/
+    creates: httpd.conf.default
+  tags:
+    - httpd
+    - config
+
+- name: httpd.conf の作成とコピー
+  template:
+    src: httpd.j2
+    dest: /etc/httpd/conf/httpd.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - httpd
+    - config
+
+- name: httpd 再起動
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
+  tags:
+    - httpd
+    - config
+
+- name: logrotate.d に httpd コピー
+  copy:
+    src: httpd.txt
+    dest: /etc/logrotate.d/httpd
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - httpd
+    - config
