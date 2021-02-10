@@ -1,0 +1,28 @@
+- name: PHP 追加
+  yum: 
+    name:
+      - php
+      - php-common
+      - php-bcmath
+      - php-recode
+      - php-mysqlnd
+      - php-fpm
+      - php-gd
+      - php-intl
+      - php-xml
+      - php-json
+      - php-mbstring
+      - php-pdo
+      - php-cli
+      - php-process
+      - php-opcache
+      - php-fpm
+      - php-pecl-zip
+      - php-devel
+      - php-pear
+    enablerepo: remi-php74
+    state: latest
+  tags:
+    - php
+    - package
+

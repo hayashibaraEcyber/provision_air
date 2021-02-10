@@ -1,0 +1,157 @@
+- name: php.ini のバックアップ
+  shell: cp -p php.ini php.ini.default
+  args:
+    chdir: /etc/
+    creates: php.ini.default
+  tags:
+    - php
+    - config
+
+- name: php.ini 書き換え
+  lineinfile:
+    dest: /etc/php.ini
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    backup: yes
+  become: yes
+  with_items:
+    - { regexp: "^;?expose_php", line: "expose_php = Off" }
+    - { regexp: "^;?default_charset", line: "default_charset = \"UTF-8\"" }
+    - { regexp: "^;?date\\.timezone", line: "date.timezone = \"Asia/Tokyo\"" }
+    - { regexp: "^;?mbstring\\.language", line: "mbstring.language = Japanese" }
+    - { regexp: "^;?mbstring\\.internal_encoding", line: "mbstring.internal_encoding =" }
+    - { regexp: "^;?mbstring\\.http_input = ", line: "mbstring.http_input = " }
+    - { regexp: "^;?mbstring\\.http_output = ", line: "mbstring.http_output = " }
+    - { regexp: "^;?mbstring\\.encoding_translation", line: "mbstring.encoding_translation = Off" }
+    - { regexp: "^;?mbstring\\.detect_order", line: "mbstring.detect_order = auto" }
+    - { regexp: "^;?mbstring\\.substitute_character", line: "mbstring.substitute_character = none;" }
+    - { regexp: "^;?mbstring\\.func_overload", line: "mbstring.func_overload = 0" }
+    - { regexp: "^;?mbstring\\.strict_detection", line: "mbstring.strict_detection = Off" }
+    - { regexp: "^;?mbstring.http_output_conv_mimetype = ", line: "mbstring.http_output_conv_mimetype = " }
+  tags:
+    - php
+    - config
+
+- name: 10-opcache.ini のバックアップ
+  shell: cp -p 10-opcache.ini 10-opcache.ini.default
+  args:
+    chdir: /etc/php.d/
+    creates: 10-opcache.ini.default
+  tags:
+    - php
+    - config
+
+- name: 10-opcache.ini 書き換え
+  lineinfile:
+    dest: /etc/php.d/10-opcache.ini
+    regexp: "^;?opcache\\.enable"
+    line: "opcache.enable=1"
+    state: present
+    backup: yes
+  tags:
+    - php
+    - config
+
+- name: www.conf のバックアップ
+  shell: cp -p www.conf www.conf.default
+  args:
+    chdir: /etc/php-fpm.d/
+    creates: www.conf.default
+  tags:
+    - php
+    - config
+
+- name: www.conf 書き換え
+  lineinfile:
+    dest: /etc/php-fpm.d/www.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    backup: yes
+  with_items:
+    - { regexp: "^;?user = ", line: "user = apache" }
+    - { regexp: "^;?group = ", line: "group = apache" }
+    - { regexp: "^;?listen = ", line: "listen = /run/php-fpm/www.sock" }
+    - { regexp: "^;?listen\\.owner = ", line: "listen.owner = apache" }
+    - { regexp: "^;?listen\\.group = ", line: "listen.group = apache" }
+    - { regexp: "^;?pm\\.max_children = ", line: "pm.max_children = {{ pm_max_children }}" }
+    - { regexp: "^;?pm\\.start_servers = ", line: "pm.start_servers = {{ pm_start_servers }}" }
+    - { regexp: "^;?pm\\.min_spare_servers = ", line: "pm.min_spare_servers = {{ pm_min_spare_servers }}" }
+    - { regexp: "^;?pm\\.max_spare_servers = ", line: "pm.max_spare_servers = {{ pm_max_spare_servers }}" }
+    - { regexp: "^;?pm\\.max_requests = ", line: "pm.max_requests = 200" }
+    - { regexp: "^;?pm\\.status_path = ", line: "pm.status_path = /sysadm/php-fpm_status" }
+  tags:
+    - php
+    - config
+
+- name: php-fpm 再起動
+  service:
+    name: php-fpm
+    state: restarted
+    enabled: yes
+  tags:
+    - php
+    - config
+
+- name: php.conf のバックアップ
+  shell: cp -p php.conf php.conf.default
+  args:
+    chdir: /etc/httpd/conf.d/
+    creates: php.conf.default
+  tags:
+    - php
+    - config
+
+- name: php.conf コピー
+  copy:
+    src: php.conf
+    dest: /etc/httpd/conf.d/php.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - php
+    - config
+
+- name: 00-proxy.conf 書き換え
+  lineinfile:
+    dest: /etc/httpd/conf.modules.d/00-proxy.conf
+    regexp: "^#?LoadModule proxy_fcgi_module "
+    line: "LoadModule proxy_fcgi_module modules/mod_proxy_fcgi.so"
+    state: present
+    backup: yes
+  tags:
+    - php
+    - config
+
+- name: httpd.conf 書き換え
+  lineinfile:
+    dest: /etc/httpd/conf/httpd.conf
+    regexp: "^#?IncludeOptional conf\\.d/php\\.conf"
+    line: "IncludeOptional conf.d/php.conf"
+    state: present
+    backup: yes
+  tags:
+    - php
+    - config
+
+- name: httpd 再起動
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
+  tags:
+    - php
+    - config
+
+- name: logrotate.d に php-fpm コピー
+  copy:
+    src: php-fpm.txt
+    dest: /etc/logrotate.d/php-fpm
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - php
+    - config

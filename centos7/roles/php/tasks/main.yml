@@ -1,0 +1,3 @@
+# Apache Httpd 設定
+- include: package.yml
+- include: config.yml
