@@ -1,0 +1,27 @@
+- name: OpenJDK 1.8 追加
+  yum: 
+    name:
+      - java-1.8.0-openjdk
+      - java-1.8.0-openjdk-devel
+    state: latest
+  tags:
+    - java
+    - package
+
+- name: パス変更シェル 追加
+  copy:
+    src: java.sh
+    dest: /etc/profile.d/
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - java
+    - package
+
+- name: パス変更シェル 実行
+  shell: source /etc/profile.d/java.sh
+  tags:
+    - java
+    - package
+
