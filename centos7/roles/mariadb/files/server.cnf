@@ -1,0 +1,98 @@
+# MariaDB 10.3 Server Config for CMS Server
+#
+# These groups are read by MariaDB server.
+# Use it for options that only the server (but not clients) should see
+#
+# See the examples of server my.cnf files in /usr/share/mysql/
+#
+
+# this is read by the standalone daemon and embedded servers
+[server]
+
+# this is only for the mysqld standalone daemon
+# Settings user and group are ignored when systemd is used.
+# If you need to run mysqld under a different user or group,
+# customize your systemd unit file for mysqld/mariadb according to the
+# instructions in http://fedoraproject.org/wiki/Systemd
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+character-set-server = utf8
+default_storage_engine = InnoDB
+max_connections = 300
+
+# Log
+log-error=/var/log/mariadb/mariadb.log
+pid-file=/run/mariadb/mariadb.pid
+
+# Binary Log
+server-id = 1
+log-bin = mysql-bin
+binlog_format = MIXED
+max_binlog_size = 1G
+expire_logs_days = 7
+
+# Slow Query Log
+slow_query_log = 1
+slow_query_log_file = /var/log/mariadb/slow.log
+long_query_time = 1
+
+# Thread buffers
+join_buffer_size = 256K
+sort_buffer_size = 2M
+read_buffer_size = 128K
+read_rnd_buffer_size = 256K
+max_allowed_packet = 128M
+myisam_sort_buffer_size = 128MB
+
+# Thread Parameter
+thread_cache_size = 300
+wait_timeout = 300
+
+# MyISAM Global buffer
+key_buffer_size = 256M
+
+# Query Cache
+query_cache_type = 1
+query_cache_limit = 2M
+query_cache_size = 32M
+
+# Temporary Table
+tmp_table_size = 32M
+max_heap_table_size = 32M
+
+# table file
+table_open_cache = 2048
+open_files_limit = 32768
+
+# InnoDB
+innodb_data_home_dir = /var/lib/mysql
+innodb_data_file_path = ibdata1:12M:autoextend
+innodb_log_group_home_dir = /var/lib/mysql
+innodb_buffer_pool_size = 768M
+innodb_log_buffer_size = 16M
+innodb_log_file_size = 48M
+sync_binlog = 0
+innodb_flush_log_at_trx_commit = 1
+innodb_lock_wait_timeout = 50
+innodb_file_per_table = ON
+innodb_flush_method=fsync
+innodb_buffer_pool_dump_at_shutdown = ON
+innodb_buffer_pool_load_at_startup = ON
+
+# this is only for embedded server
+[embedded]
+
+# This group is only read by MariaDB servers, not by MySQL.
+# If you use the same .cnf file for MySQL and MariaDB,
+# you can put MariaDB-only options here
+[mariadb]
+
+# This group is only read by MariaDB-10.3 servers.
+# If you use the same .cnf file for MariaDB of different versions,
+# use this group for options that older servers don't understand
+[mariadb-10.3]

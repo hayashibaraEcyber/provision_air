@@ -11,3 +11,6 @@ cms_server_ip=192.168.33.12
 
 web_host_name=develop-web-host
 web_server_ip=192.168.33.12
+
+# MariaDBのパスワード
+mariadb_root_password=12345678

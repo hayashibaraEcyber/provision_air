@@ -1,0 +1,13 @@
+# MariaDB 10.3 MySQL Client Config for CMS Server
+#
+# These groups are read by MariaDB command-line tools
+# Use it for options that affect only one utility
+#
+[mysqldump]
+quick
+max_allowed_packet = 16M
+default-character-set= utf8
+
+[mysql]
+no-auto-rehash
+default-character-set = utf8

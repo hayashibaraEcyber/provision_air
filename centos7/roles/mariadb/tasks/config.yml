@@ -1,0 +1,88 @@
+- name: log と pid　のディレクトリを作成
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0755
+  with_items:
+    - "/var/log/mariadb"
+    - "/run/mariadb"
+  tags:
+    - config
+    - mariadb
+
+- name: MariaDB 起動
+  service:
+    name: mysql
+    state: restarted
+    enabled: yes
+  tags:
+    - config
+    - mariadb
+
+- name: MariaDB の auth_gssapi.cnf を確認
+  stat: 
+    path: /etc/my.cnf.d/auth_gssapi.cnf
+  register: gssapi_cnf
+  tags:
+    - config
+    - mariadb
+
+- name: MariaDB の auth_gssapi.cnf を名前を変更して無効化
+  shell: mv auth_gssapi.cnf auth_gssapi.cnf.default
+  args:
+    chdir: /etc/my.cnf.d/
+    creates: auth_gssapi.cnf.default
+  when:
+    - gssapi_cnf.stat.exists is defined
+    - gssapi_cnf.stat.exists 
+  tags:
+    - config
+    - mariadb
+
+- name: MariaDB の *.cnf のオリジナルを退避
+  shell: cp -p {{ item }} {{ item }}.default
+  args:
+    chdir: /etc/my.cnf.d/
+    creates: "{{ item }}.default"
+  with_items:
+    - "server.cnf"
+    - "mysql-clients.cnf"
+  tags:
+    - config
+    - mariadb
+
+- name: MariaDB の *.cnf をコピー
+  copy:
+    src: "{{ item }}"
+    dest: /etc/my.cnf.d/
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - "server.cnf"
+    - "mysql-clients.cnf"
+  tags:
+    - config
+    - mariadb
+
+- name: mariadb 再起動
+  service:
+    name: mariadb
+    state: restarted
+    enabled: yes
+  tags:
+    - config
+    - mariadb
+
+- name: logrotate.d に mariadb コピー
+  copy:
+    src: mariadb.txt
+    dest: /etc/logrotate.d/mariadb
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - config
+    - mariadb

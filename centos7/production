@@ -11,3 +11,6 @@ cms_server_ip=127.0.0.1
 
 web_host_name=production-web-host
 web_server_ip=127.0.0.1
+
+# MariaDBのパスワード 本番環境構築の際は書き換える
+mariadb_root_password=12345678

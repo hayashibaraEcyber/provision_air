@@ -1,0 +1,4 @@
+# MariaDB 設定
+- include: package.yml
+- include: config.yml
+- include: mysql_secure_installation.yml

@@ -1,0 +1,41 @@
+- name: 古い MariaDB 削除
+  yum: 
+    name:
+      - mariadb-*
+    state: absent
+  tags:
+    - mariadb
+    - package
+
+- name: MariaDB.repo 追加
+  template:
+    src: MariaDB.repo.j2
+    dest: /etc/yum.repos.d/MariaDB.repo
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - mariadb
+    - package
+
+- name: MariaDB 追加
+  yum: 
+    name:
+      - MariaDB-server
+      - MariaDB-devel
+      - MariaDB-client
+    enablerepo: mariadb
+    disablerepo: ius
+    state: latest
+  tags:
+    - mariadb
+    - package
+
+- name: MySQL-python 追加
+  yum: 
+    name:
+      - MySQL-python
+    state: latest
+  tags:
+    - mariadb
+    - package

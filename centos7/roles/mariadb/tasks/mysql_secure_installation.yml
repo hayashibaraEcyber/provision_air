@@ -1,0 +1,78 @@
+# MariaDB の mysql_secure_installation と同等のことを行う
+
+- name: 一時的な my.cnf 追加
+  template:
+    src: root.my.cnf
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - mariadb
+    - mysql_secure_installation
+
+- name: root のパスワードを設定する
+  mysql_user:
+    name: root
+    host_all: yes
+    password: "{{ mariadb_root_password }}"
+  tags:
+    - mariadb
+    - mysql_secure_installation
+
+- name: 匿名ユーザを削除する
+  mysql_user:
+    name: ''
+    host_all: yes
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    state: absent
+  tags:
+    - mariadb
+    - mysql_secure_installation
+
+- name: ホスト名取得
+  shell: hostname
+  register: hostname_result
+  changed_when: false
+  failed_when: false
+  tags:
+    - mariadb
+    - mysql_secure_installation
+ 
+- name: リモートからのrootログインを許可しない
+  mysql_user:
+    name: root
+    host: "{{ hostname_result.stdout }}"
+    state: absent
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+  when:
+    - hostname_result.stdout is defined
+  tags:
+    - mariadb
+    - mysql_secure_installation
+
+- name: 権限テーブルをreloadする
+  command: 'mysql -ne FLUSH PRIVILEGES'
+  changed_when: false
+  failed_when: false
+  tags:
+    - mariadb
+    - mysql_secure_installation
+
+- name: 一時的な my.cnf 削除
+  file:
+    path: /root/.my.cnf
+    state: absent
+  tags:
+    - mariadb
+    - mysql_secure_installation
+
+- name: mariadb 再起動
+  service:
+    name: mariadb
+    state: restarted
+  tags:
+    - mariadb
+    - mysql_secure_installation
