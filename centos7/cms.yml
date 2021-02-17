@@ -6,6 +6,8 @@
     server_ip: "{{ cms_server_ip }}"
     # Apache設定
     max_request: 2048
+    doc_root: "{{ cms_doc_root }}"
+    doc_root_owner: apache
     # PHP-FPM設定
     pm_max_children: 40
     pm_start_servers: 5

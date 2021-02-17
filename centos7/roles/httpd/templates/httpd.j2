@@ -390,3 +390,5 @@ KeepAliveTimeout 3
 IncludeOptional conf.d/notrace.conf
 # gzip圧縮配信
 IncludeOptional conf.d/deflate.conf
+# VirtualHost Config
+Include conf.d/vhost_{{ server_host_name }}.conf

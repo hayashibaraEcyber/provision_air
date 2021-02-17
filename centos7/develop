@@ -8,9 +8,11 @@
 [all:vars]
 cms_host_name=develop-cms-host
 cms_server_ip=192.168.33.12
+cms_doc_root=develop-cms
 
 web_host_name=develop-web-host
 web_server_ip=192.168.33.12
+web_doc_root=develop-web
 
 # MariaDBのパスワード
 mariadb_root_password=12345678

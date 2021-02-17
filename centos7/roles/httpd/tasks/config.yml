@@ -53,6 +53,28 @@
     - httpd
     - config
 
+- name: DocumentRoot 作成
+  file:
+    path: "/var/www/{{ doc_root }}"
+    owner: "{{ doc_root_owner }}"
+    group: "{{ doc_root_owner }}"
+    state: directory
+    mode: 0755
+  tags:
+    - httpd
+    - config
+
+- name: VirtualHostごとのConfigファイルを作成して転送
+  template:
+    src: vhost_conf.j2
+    dest: "/etc/httpd/conf.d/vhost_{{ server_host_name }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - httpd
+    - config
+
 - name: httpd.conf のバックアップ
   shell: cp -p httpd.conf httpd.conf.default
   args:
