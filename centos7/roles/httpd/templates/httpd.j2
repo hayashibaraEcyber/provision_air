@@ -60,10 +60,16 @@ Include conf.modules.d/00-base.conf
 Include conf.modules.d/00-mpm.conf
 # Proxy関連
 Include conf.modules.d/00-proxy.conf
+# SSL
+Include conf.modules.d/00-ssl.conf 
 # systemdとの連携
 Include conf.modules.d/00-systemd.conf
 # mod_cgi
 Include conf.modules.d/01-cgi.conf
+# HTTP/2
+Include conf.modules.d/10-h2.conf
+Include conf.modules.d/10-mod_security.conf
+Include conf.modules.d/10-proxy_h2.conf
 
 #
 # If you wish httpd to run as a different user or group, you must run
@@ -390,5 +396,11 @@ KeepAliveTimeout 3
 IncludeOptional conf.d/notrace.conf
 # gzip圧縮配信
 IncludeOptional conf.d/deflate.conf
+
+IncludeOptional conf.d/php.conf
+IncludeOptional conf.d/ssl.conf
+IncludeOptional conf.d/mod_security.conf
+
 # VirtualHost Config
 Include conf.d/vhost_{{ server_host_name }}.conf
+Include conf.d/vhost_ssl_{{ server_host_name }}.conf

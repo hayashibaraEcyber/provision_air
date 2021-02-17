@@ -1,0 +1,48 @@
+- name: mod_security 追加
+  yum: 
+    name:
+      - mod_security
+    state: latest
+  tags:
+    - httpd
+    - mod_security
+
+- name: 10-mod_security.conf のバックアップ
+  shell: cp -p 10-mod_security.conf 10-mod_security.conf.default
+  args:
+    chdir: /etc/httpd/conf.modules.d/
+    creates: 10-mod_security.conf.default
+  tags:
+    - httpd
+    - mod_security
+
+- name: 10-mod_security.conf コピー
+  copy:
+    src: 10-mod_security.conf
+    dest: /etc/httpd/conf.modules.d/
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - httpd
+    - mod_security
+
+- name: mod_security.conf のバックアップ
+  shell: cp -p mod_security.conf mod_security.conf.default
+  args:
+    chdir: /etc/httpd/conf.d/
+    creates: mod_security.conf.default
+  tags:
+    - httpd
+    - mod_security
+
+- name: mod_security.conf コピー
+  copy:
+    src: mod_security.conf
+    dest: /etc/httpd/conf.d/
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - httpd
+    - mod_security

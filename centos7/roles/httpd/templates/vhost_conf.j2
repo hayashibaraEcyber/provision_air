@@ -21,4 +21,7 @@
     ErrorLog logs/{{ server_host_name }}-error_log
     CustomLog logs/{{ server_host_name }}-access_log combined env=!other
     CustomLog logs/{{ server_host_name }}-worm_log combined env=worm
+
+    # Let's Encrypt
+    Alias /.well-known /var/www/certbot/{{ server_host_name }}/.well-known
 </VirtualHost>

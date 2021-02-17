@@ -1,0 +1,69 @@
+<VirtualHost _default_:443>
+DocumentRoot /var/www/{{ doc_root }}
+ServerName {{ server_host_name }}:443
+
+ErrorLog logs/ssl_{{ server_host_name }}-error_log
+LogLevel warn
+
+Protocols h2 http/1.1
+SSLEngine on
+SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:+HIGH:+MEDIUM:!SSLv3:!TLSv1:!SHA1:!RC4:!3DES:!IDEA:!LOW:!EXP:!eNULL:!aNULL
+SSLHonorCipherOrder on
+
+SSLCertificateFile /etc/letsencrypt/live/{{ server_host_name }}/cert.pem
+SSLCertificateKeyFile /etc/letsencrypt/live/{{ server_host_name }}/privkey.pem
+SSLCertificateChainFile /etc/letsencrypt/live/{{ server_host_name }}/chain.pem
+
+<Files ~ "\.(cgi|shtml|phtml|php3?)$">
+    SSLOptions +StdEnvVars
+</Files>
+<Directory "/var/www/cgi-bin">
+    SSLOptions +StdEnvVars
+</Directory>
+
+BrowserMatch "MSIE [2-5]" \
+         nokeepalive ssl-unclean-shutdown \
+         downgrade-1.0 force-response-1.0
+
+<IfModule mod_setenvif.c>
+    SetEnvIf Request_URI "default\.ida" worm other
+    SetEnvIf Request_URI "cmd\.exe" worm other
+    SetEnvIf Request_URI "root\.exe" worm other
+    SetEnvIf User-Agent "OpenVAS" block
+</IfModule>
+
+CustomLog logs/ssl_{{ server_host_name }}-access_log combined env=!other
+CustomLog logs/ssl_{{ server_host_name }}-worm_log combined env=worm
+
+<Directory /var/www/{{ doc_root }}>
+    AllowOverride All
+    <RequireAll>
+        Require all granted
+        Require not env worm
+        Require not env block
+    </RequireAll>
+</Directory>
+
+# for Let's Encrypt
+Alias /.well-known /var/www/certbot/{{ server_host_name }}/.well-known
+
+# System Tools
+<Location /sysadm>
+    AuthType Basic
+    AuthUserFile /etc/httpd/conf/.htpasswd_sysadmin
+    AuthName "Server Administrator"
+    require valid-user
+</Location>
+
+# Apache Status
+<Location /sysadm/server-status>
+    SetHandler server-status
+</Location>
+
+# PHP-FPM Status
+<LocationMatch /sysadm/php-fpm_status>
+    ProxyPass unix:/run/php-fpm/www.sock|fcgi://localhost/sysadm/php-fpm_status
+</LocationMatch>
+
+</VirtualHost>

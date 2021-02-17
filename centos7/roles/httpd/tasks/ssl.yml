@@ -1,0 +1,63 @@
+- name: Certbot(Let's Encrypt) 追加
+  yum: 
+    name:
+      - certbot
+      - python-certbot-apache
+    enablerepo: epel
+    state: latest
+  tags:
+    - httpd
+    - ssl
+
+- name: 認証用ファイルを設置するディレクトリを作成
+  file:
+    path: "/var/www/certbot/{{ server_host_name }}"
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - httpd
+    - ssl
+
+- name: 証明書を発行する
+  shell: > 
+    certbot certonly --webroot 
+    -w "/var/www/certbot/{{ server_host_name }}"
+    -d "{{ server_host_name }}"
+    --preferred-challenges http
+    --agree-tos
+    --register-unsafely-without-email
+  changed_when: false
+  failed_when: false
+  tags:
+    - httpd
+    - ssl
+
+- name: mod_ssl 追加
+  yum: 
+    name:
+      - mod_ssl
+    state: latest
+  tags:
+    - httpd
+    - ssl
+
+- name: ssl.conf のバックアップ
+  shell: cp -p ssl.conf ssl.conf.default
+  args:
+    chdir: /etc/httpd/conf.d/
+    creates: ssl.conf.default
+  tags:
+    - httpd
+    - ssl
+
+- name: VirtualHostごとのConfigファイルを作成して転送
+  template:
+    src: vhost_conf.j2
+    dest: "/etc/httpd/conf.d/vhost_ssl_{{ server_host_name }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - httpd
+    - ssl
