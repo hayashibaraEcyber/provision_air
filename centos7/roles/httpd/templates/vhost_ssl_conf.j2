@@ -66,4 +66,14 @@ Alias /.well-known /var/www/certbot/{{ server_host_name }}/.well-known
     ProxyPass unix:/run/php-fpm/www.sock|fcgi://localhost/sysadm/php-fpm_status
 </LocationMatch>
 
+# mod_dosdetector
+LogFormat "%{SuspectHardDoS}e %v %a %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" dosdetector
+CustomLog logs/dos_suspect_log dosdetector env=SuspectDoS
+
+RewriteEngine On
+RewriteCond %{ENV:SuspectHardDoS} =1
+RewriteCond %{REMOTE_ADDR} !^127\.0\.0\.1$
+RewriteCond %{REMOTE_ADDR} !^124\.110\.63\.4$
+RewriteRule .*  - [R=503,L]
+
 </VirtualHost>

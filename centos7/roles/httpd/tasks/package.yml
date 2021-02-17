@@ -1,8 +1,10 @@
-- name: Apache httpd 追加
+- name: Apache httpd, http-devel, mod_http2 追加
   yum: 
     name:
       - httpd
       - httpd-devel
+      - mod_http2
+    enablerepo: ius
     state: latest
   tags:
     - httpd

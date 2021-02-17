@@ -12,9 +12,10 @@
 - name: 認証用ファイルを設置するディレクトリを作成
   file:
     path: "/var/www/certbot/{{ server_host_name }}"
+    state: directory
     owner: root
     group: root
-    mode: 0644
+    mode: 0755
   tags:
     - httpd
     - ssl
@@ -29,6 +30,7 @@
     --register-unsafely-without-email
   changed_when: false
   failed_when: false
+  ignore_errors: yes
   tags:
     - httpd
     - ssl

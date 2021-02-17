@@ -1,4 +1,6 @@
 # Apache Httpd 設定
 - include: package.yml
 - include: ssl.yml
+- include: mod_security.yml
+- include: mod_dosdetector.yml
 - include: config.yml
