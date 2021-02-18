@@ -10,3 +10,8 @@ workusers:
 
 # MariaDB バージョン
 mariadb_ver: 10.3
+
+# Tomcat ホスティング
+tomcat_hosting: ftp.riken.jp/net/apache/tomcat/tomcat-8
+# Tomcat バージョン
+tomcat_ver: 8.5.63

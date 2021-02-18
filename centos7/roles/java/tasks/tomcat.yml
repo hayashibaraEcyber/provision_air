@@ -1,0 +1,121 @@
+- name: Tomcat グループ追加
+  group:
+    name: tomcat
+    state: present
+  tags:
+    - java
+    - tomcat
+
+- name: Tomcat ユーザー追加
+  user:
+    name: tomcat
+    group: tomcat
+    append: yes
+  tags:
+    - java
+    - tomcat
+
+- name: Tomcatのアーカイブファイル取得
+  unarchive:
+    src: "https://{{ tomcat_hosting }}/v{{ tomcat_ver }}/bin/apache-tomcat-{{ tomcat_ver }}.zip"
+    dest: "/opt"
+    remote_src: yes
+  tags:
+    - java
+    - tomcat
+
+- name: Tomcat 権限変更
+  file:
+    path: "/opt/apache-tomcat-{{ tomcat_ver }}"
+    recurse: yes
+    owner: tomcat
+    group: tomcat
+  tags:
+    - java
+    - tomcat
+
+- name: Tomcat シンボリックリンク作成
+  file:
+    src: "/opt/apache-tomcat-{{ tomcat_ver }}"
+    dest: /opt/tomcat
+    state: link
+  tags:
+    - java
+    - tomcat
+
+- name: Tomcat シンボリックリンク権限変更
+  file:
+    path: "/opt/tomcat"
+    owner: tomcat
+    group: tomcat
+  tags:
+    - java
+    - tomcat
+
+- name: 開始/終了シェル 実行権限付与
+  file:
+    path: "/opt/tomcat/bin/{{ item }}"
+    owner: tomcat
+    group: tomcat
+    mode: 0755
+  with_items:
+    - "catalina.sh"
+    - "ciphers.sh"
+    - "configtest.sh"
+    - "daemon.sh"
+    - "digest.sh"
+    - "setclasspath.sh"
+    - "shutdown.sh"
+    - "startup.sh"
+    - "tool-wrapper.sh"
+    - "version.sh"
+  tags:
+    - java
+    - tomcat
+
+- name: CATALINA_HOME 設定シェル追加
+  copy:
+    src: tomcat.sh
+    dest: /etc/profile.d/
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - java
+    - tomcat
+
+- name: CATALINA_HOME 設定
+  shell: source /etc/profile.d/tomcat.sh
+  tags:
+    - java
+    - tomcat
+
+- name: tomcat.service 追加
+  copy:
+    src: tomcat.service
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - java
+    - tomcat
+
+- name: Tomcat 起動
+  service:
+    name: tomcat
+    state: restarted
+    enabled: yes
+  tags:
+    - java
+    - tomcat
+
+- name: デーモン リロード
+  systemd:
+    name: tomcat.service
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+  tags:
+    - java
+    - tomcat
