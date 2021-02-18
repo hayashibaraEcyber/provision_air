@@ -39,6 +39,8 @@
   yum: 
     name:
       - mod_ssl
+    enablerepo: ius
+    disablerepo: base,extras,updates,epel
     state: latest
   tags:
     - httpd

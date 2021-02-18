@@ -1,10 +1,25 @@
-- name: Apache httpd, http-devel, mod_http2 追加
+- name: 依存ライブラリ 追加
+  yum: 
+    name:
+      - nghttp2
+      - mailcap
+      - brotli
+      - openldap-devel
+      - expat-devel
+      - libdb-devel
+      - apr-devel
+    state: latest
+  tags:
+    - httpd
+    - package
+
+- name: Apache httpd, http-devel 追加
   yum: 
     name:
       - httpd
       - httpd-devel
-      - mod_http2
     enablerepo: ius
+    disablerepo: base,extras,updates,epel
     state: latest
   tags:
     - httpd

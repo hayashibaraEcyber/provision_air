@@ -35,6 +35,8 @@
   with_items:
     - 00-base.conf
     - 00-proxy.conf
+    # - 10-h2.conf
+    # - 10-proxy_h2.conf
   tags:
     - httpd
     - config
@@ -49,6 +51,8 @@
   with_items:
     - 00-base.conf
     - 00-proxy.conf
+    - 10-h2.conf
+    - 10-proxy_h2.conf
   tags:
     - httpd
     - config
