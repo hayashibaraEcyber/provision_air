@@ -1,0 +1,57 @@
+- name: ClamAV パッケージ追加
+  yum:
+    name:
+      - clamav
+      - clamav-data
+      - clamav-devel
+      - clamav-filesystem
+      - clamav-update
+      - clamd
+    enablerepo: epel
+    state: latest
+  tags: clamav
+
+- name: scan.conf のバックアップ
+  shell: cp -p scan.conf scan.conf.default
+  args:
+    chdir: /etc/clamd.d/
+    creates: scan.conf.default
+  tags: clamav
+
+- name: scan.conf コピー
+  copy:
+    src: scan.conf
+    dest: /etc/clamd.d/
+    owner: root
+    group: root
+    mode: 0644
+  tags: clamav
+
+- name: freshclam 実行
+  shell: freshclam
+  tags: clamav
+
+- name: clamdscan.sh コピー
+  copy:
+    src: clamdscan.sh
+    dest: /root/bin/
+    owner: root
+    group: root
+    mode: 0755
+  tags: clamav
+
+- name: clamd@scan 再起動
+  service:
+    name: clamd@scan
+    state: restarted
+    enabled: yes
+  tags: clamav
+
+- name: crontab 設定
+  cron:
+    name: 3時15分にClamAV実行
+    minute: "15"
+    hour: "3"
+    job: "/root/bin/clamdscan.sh"
+    state: present
+  tags: clamav
