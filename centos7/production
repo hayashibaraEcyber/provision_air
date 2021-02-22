@@ -16,3 +16,11 @@ web_doc_root=production-web
 
 # MariaDBのパスワード 本番環境構築の際は書き換える
 mariadb_root_password=12345678
+
+# iptables IP群
+ip_ecyber=124.110.63.4
+ip_customer=202.21.163.142
+ip_cms_server=153.120.134.67
+ip_air_server=133.242.51.69
+ip_sakura_monitor=27.133.139.32/28
+eth0=eth0

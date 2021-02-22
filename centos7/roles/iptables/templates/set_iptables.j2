@@ -1,0 +1,84 @@
+﻿#!/bin/sh
+#	set_iptables.sh
+#	iptables設定スクリプト
+#
+#	first written on: 2021/02/02	system@e-cyber.co.jp
+#	last updated on:  2021/02/02	system@e-cyber.co.jp
+#
+ETH0=eth0
+
+### 初期化
+iptables -F
+iptables -X
+
+### デフォルトルール、すべて破棄
+iptables -P INPUT DROP
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP
+
+### IP偽装パケット（インタフェースへのプライベートIPアドレスからのアクセス）
+### をすべて破棄
+iptables -A INPUT -i {{ eth0 }} -s 127.0.0.1 -j DROP
+iptables -A INPUT -i {{ eth0 }} -s 172.16.0.0/12 -j DROP
+iptables -A INPUT -i {{ eth0 }} -s 192.168.0.0/16 -j DROP
+iptables -A INPUT -i {{ eth0 }} -s 10.0.0.0/8 -j DROP
+
+### ループバックインタフェースはすべて許可
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+
+### セッション確立後のアクセスは許可
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+### 内向きアクセスの許可
+## TCP - HTTP, HTTPS を許可
+iptables -A INPUT -m state --state NEW -p tcp --dport 80 -j ACCEPT   # HTTP
+iptables -A INPUT -m state --state NEW -p tcp --dport 443 -j ACCEPT  # HTTPS
+
+## TCP - SSH、SiteGuard管理画面(TCP/9443)は特定のIPアドレスからのみ許可
+iptables -A INPUT -s {{ ip_ecyber }} -m state --state NEW \
+  -p tcp --dport 22 -j ACCEPT # SSH
+iptables -A INPUT -s {{ ip_customer }} -m state --state NEW \
+  -p tcp --dport 22 -j ACCEPT # SSH
+iptables -A INPUT -s {{ ip_cms_server }} -m state --state NEW \
+  -p tcp --dport 22 -j ACCEPT # SSH
+iptables -A INPUT -s {{ ip_air_server }} -m state --state NEW \
+  -p tcp --dport 22 -j ACCEPT # SSH
+iptables -A INPUT -s {{ ip_sakura_monitor }} -m state --state NEW \
+  -p tcp --dport 22 -j ACCEPT # SSH
+
+iptables -A INPUT -s {{ ip_ecyber }} -m state --state NEW \
+  -p tcp --dport 9443 -j ACCEPT # SiteGuard Admin
+
+## ICMP - pingやpingリクエストの戻りなど一部のみ許可
+## 特定のIPアドレスからのみ許可
+iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
+iptables -A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT
+iptables -A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT
+iptables -A INPUT -s {{ ip_sakura_monitor }} -p icmp --icmp-type echo-request -j ACCEPT
+
+### 外向きアクセスの許可
+## TCP - HTTP, HTTPS, DNS, SSH, FTP, NTP, SMTP, SMTPS, Submission, DNS, Whois, MySQLを許可
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 80 -j ACCEPT   # HTTP
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 443 -j ACCEPT  # HTTPS
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 53 -j ACCEPT   # DNS
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 43 -j ACCEPT   # WHOIS
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 22 -j ACCEPT   # SSH
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 20 -j ACCEPT   # FTP
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 21 -j ACCEPT   # FTP
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 25 -j ACCEPT   # SMTP
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 123 -j ACCEPT  # NTP
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 465 -j ACCEPT  # SMTPS
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 587 -j ACCEPT  # Submission
+iptables -A OUTPUT -m state --state NEW -p tcp --dport 3306 -j ACCEPT # MySQL
+
+## UDP - DNS, Whois, NTPを許可
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT   # DNS
+iptables -A OUTPUT -p udp --dport 43 -j ACCEPT   # WHOIS
+iptables -A OUTPUT -p udp --dport 123 -j ACCEPT  # NTP
+
+## ICMP - すべてを許可
+iptables -A OUTPUT -p icmp -j ACCEPT
+
+# EOF

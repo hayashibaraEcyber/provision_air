@@ -1,0 +1,58 @@
+- name: iptables-config のバックアップ
+  shell: cp -p iptables-config iptables-config.default
+  args:
+    chdir: /etc/sysconfig/
+    creates: iptables-config.default
+  tags:
+    - iptables
+    - config
+
+- name: sshd_config 書き換え
+  lineinfile:
+    dest: /etc/sysconfig/iptables-config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    backup: yes
+  become: yes
+  with_items:
+    - { regexp: "^#?IPTABLES_MODULES=", line: "IPTABLES_MODULES=\"ip_conntrack_ftp ip_nat_ftp\"" }
+  register: iptables_config_result
+  tags:
+    - iptables
+    - config
+
+- name: clear_iptables.sh/set_iptables.sh 作成/コピー
+  template:
+    src: "{{ item }}.j2"
+    dest: "/root/bin/{{ item }}.sh"
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - clear_iptables
+    - set_iptables
+  tags:
+    - iptables
+    - config
+
+- name: iptables 設定シェル実行
+  shell: /root/bin/set_iptables.sh
+  tags:
+    - iptables
+    - config
+
+- name: iptables-save 実行
+  shell: iptables-save > /etc/sysconfig/iptables
+  tags:
+    - iptables
+    - config
+
+- name: iptables 起動
+  service:
+    name: iptables
+    state: restarted
+    enabled: yes
+  tags:
+    - config
+    - mariadb

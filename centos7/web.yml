@@ -1,4 +1,20 @@
 # 公開サーバー
 - hosts: web
   become: yes
+  vars:
+    server_host_name: "{{ web_host_name }}"
+    server_ip: "{{ web_server_ip }}"
+    # Apache設定
+    max_request: 4096
+    doc_root: "{{ web_doc_root }}"
+    doc_root_owner: cypochi
+    # PHP-FPM設定
+    pm_max_children: 80
+    pm_start_servers: 10
+    pm_min_spare_servers: 10
+    pm_max_spare_servers: 55
   roles:
+    - common
+    - httpd
+    - php
+    - iptables
