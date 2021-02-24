@@ -54,5 +54,5 @@
     state: restarted
     enabled: yes
   tags:
+    - iptables
     - config
-    - mariadb

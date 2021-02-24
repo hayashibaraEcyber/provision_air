@@ -1,0 +1,66 @@
+- name: fail2ban/fail2ban-systemd 追加
+  yum:
+    name: 
+      - fail2ban
+      - fail2ban-systemd
+    enablerepo: epel
+    state: latest
+  tags: 
+   - fail2ban
+
+- name: fail2ban.conf のバックアップ
+  shell: cp -p fail2ban.conf fail2ban.conf.default
+  args:
+    chdir: /etc/fail2ban/
+    creates: fail2ban.conf.default
+  tags:
+   - fail2ban
+
+- name: fail2ban ログ出力書き換え
+  lineinfile:
+    dest: /etc/fail2ban/fail2ban.conf
+    regexp: "^logtarget ="
+    line: "logtarget = /var/log/fail2ban.log"
+    state: present
+    backup: yes
+  tags:
+   - fail2ban
+
+- name: jail.conf をコピー
+  shell: cp -p jail.conf jail.local
+  args:
+    chdir: /etc/fail2ban/
+  tags:
+   - fail2ban
+
+- name: /etc/fail2ban/jail.local 書き換え
+  lineinfile:
+    dest: /etc/fail2ban/jail.local
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    backup: yes
+  become: yes
+  with_items:
+    - { regexp: "^#?usedns =", line: "usedns = no" }
+    - { regexp: "^#?logencoding =", line: "logencoding = utf-8" }
+  tags:
+   - fail2ban
+
+- name: fail2ban 起動
+  service:
+    name: fail2ban
+    state: restarted
+    enabled: yes
+  tags:
+   - fail2ban
+
+- name: fail2ban ログローテート設定をコピー
+  copy:
+    src: fail2ban.txt
+    dest: /etc/logrotate.d/fail2ban
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+   - fail2ban

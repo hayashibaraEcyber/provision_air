@@ -1,0 +1,10 @@
+/var/log/fail2ban.log {
+    weekly
+    rotate 52
+    compress
+    missingok
+    notifempty
+    postrotate
+      /usr/bin/fail2ban-client flushlogs >/dev/null || true
+    endscript
+}

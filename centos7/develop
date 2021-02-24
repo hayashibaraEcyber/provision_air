@@ -18,7 +18,7 @@ web_doc_root=develop-web
 mariadb_root_password=12345678
 
 # iptables IP群
-ip_ecyber=124.110.63.4
+ip_ecyber=192.168.33.11
 ip_customer=202.21.163.142
 ip_cms_server=153.120.134.67
 ip_air_server=133.242.51.69

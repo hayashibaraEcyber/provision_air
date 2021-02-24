@@ -10,7 +10,7 @@
 
 - name: fail2ban を停止
   service:
-    name: firewalld
+    name: fail2ban
     state: stopped
   ignore_errors: yes
   tags: 
