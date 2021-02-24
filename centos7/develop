@@ -24,3 +24,6 @@ ip_cms_server=153.120.134.67
 ip_air_server=133.242.51.69
 ip_sakura_monitor=27.133.139.32/28
 eth0=eth0
+
+# MackerelのAPIキー
+mackerel_api_key=xxx
