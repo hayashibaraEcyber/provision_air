@@ -71,4 +71,4 @@
     mode: 0644
   tags:
     - httpd
-    - mod_security
+    - mod_dosdetector

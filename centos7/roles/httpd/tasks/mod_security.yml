@@ -2,8 +2,6 @@
   yum: 
     name:
       - mod_security
-    enablerepo: ius
-    disablerepo: base,extras,updates,epel
     state: latest
   tags:
     - httpd
