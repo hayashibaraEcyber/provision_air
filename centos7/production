@@ -14,6 +14,13 @@ web_host_name=production-web-host
 web_server_ip=127.0.0.1
 web_doc_root=production-web
 
+# ログ転送のトークン/シークレット
+sakura_sec_token=token_xxx
+sakura_sec_secret=secret_xxx
+# ログ転送のゾーン
+sakura_src_zone=is1a
+sakura_dst_zone=tk1a
+
 # MariaDBのパスワード 本番環境構築の際は書き換える
 mariadb_root_password=12345678
 

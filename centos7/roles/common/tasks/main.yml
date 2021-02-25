@@ -11,3 +11,4 @@
 - include: ntp.yml
 - include: daemon.yml
 - include: clamav.yml
+- include: archive.yml

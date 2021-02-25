@@ -1,0 +1,227 @@
+﻿#!/bin/bash
+#   copy_archive_to_zone.sh
+#     さくらのクラウド　アーカイブゾーン間コピースクリプト
+#
+#     $SRC_ZONE において、「自動バックアップ」で作成された
+#     すべてのアーカイブを、$DST_ZONE にコピーする。
+#
+#     コピー先では、アーカイブ名は同じ。説明(Description)に
+#     コピー元のディスク名を付与する。これは、コピー先ゾーンでも、
+#     どのサーバーのアーカイブかを区別するため。
+#
+#  前提
+#     ・アーカイブは、自動バックアップで作成されており、
+#       タグに 'autobackup' が含まれる。
+#     ・アーカイブ名は、'<サーバー名> YYYY/MM/DD' の形式となっている。
+#     　（スペースが含まれる）
+#     ・さくらのクラウドのコマンドツール usacloudがインストール、
+#       設定され、実行可能である。
+#     ・JSONの整形・加工ツールjqコマンドが実行可能。
+#     ・本スクリプトにアクセスレベル「作成・削除」をもつAPIキーを記載する。
+#  注意
+#     ・アーカイブは1つずつ転送し、転送完了後に、次のアーカイブを転送する。
+#　　　 これは、さくらのクラウドのアーカイブ機能は、1ゾーンあたり同時4実行
+#　　　 という制約があるため。
+#
+
+# ansibleのinventryに設定した値を埋込
+# ログ転送のトークン/シークレット
+SEC_TOKEN={{ sakura_sec_token }}
+SEC_SECRET={{ sakura_sec_secret }}
+# ログ転送のゾーン
+SRC_ZONE={{ sakura_src_zone }}
+DST_ZONE={{ sakura_dst_zone }}
+
+SRC_API_URL=https://secure.sakura.ad.jp/cloud/zone/${SRC_ZONE}/api/cloud/1.1/
+DST_API_URL=https://secure.sakura.ad.jp/cloud/zone/${DST_ZONE}/api/cloud/1.1/
+
+LOGFILE=/var/log/copy_archive_to_zone.log
+
+export LANG=C
+
+get_src_archive_list(){
+  usacloud --zone ${SRC_ZONE} archive ls --scope user |\
+    jq --arg SRC_ZONE "${SRC_ZONE}" \
+      '.[] | select((.Tags[] | startswith("autobackup")) and (.Availability == "available") and (.Storage.Zone.Name == $SRC_ZONE)) | .ID, .SizeMB, .SourceDisk.Name, .Name' |\
+      xargs -n4
+
+  return ${PIPESTATUS[0]}
+}
+
+get_dst_archive_list(){
+  # $1: Source Disk Name (Description)
+  if [ "$#" -ne 1 ] ; then
+    return 1
+  fi
+
+  usacloud --zone ${DST_ZONE} archive ls --scope user |\
+    jq --arg DST_ZONE "${DST_ZONE}" --arg DESCRIPTION "$1" \
+      '.[] | select((.Storage.Zone.Name == $DST_ZONE) and (.Description == $DESCRIPTION)) | .ID, .CreatedAt, .Name'|\
+      xargs -n3
+
+  return ${PIPESTATUS[0]}
+}
+
+get_dst_archive_availability(){
+  # $1: ARCHIVE ID
+  if [ "$#" -ne 1 ] ; then
+    return 1
+  fi
+
+  usacloud --zone ${DST_ZONE} archive ls --scope user |\
+    jq -r --arg DST_ZONE "${DST_ZONE}" --arg ARCHIVE_ID $1 \
+      '.[] | select((.Storage.Zone.Name == $DST_ZONE) and ((.ID | tostring) == $ARCHIVE_ID)) | .Availability'
+
+  return ${PIPESTATUS[0]}
+}
+
+copy_archive_to_zone(){
+  # $1: ARCHIVE ID
+  # $2: ARCHIVE SizeMB
+  # $3: Source Disk Name -> Description
+  # $4: Output FileName of API Response
+  # $5: ARCHIVE Name
+  if [ "$#" -ne 5 ] ; then
+    return 1
+  fi
+
+  curl -X POST \
+    --user "${SEC_TOKEN}:${SEC_SECRET}" \
+    -d "{\"Archive\":{\"Name\":\"$5\",\"Description\":\"$3\",\"Tags\":[],\"SizeMB\":$2,\"Icon\":{}},\"Count\":0}" \
+    -o $4 \
+    ${SRC_API_URL}archive/$1/to/zone/${DST_ZONE} \
+    -s
+
+  return $?
+}
+
+delete_archive(){
+  # $1: ARCHIVE ID
+  if [ "$#" -ne 1 ] ; then
+    return 1
+  fi
+
+  curl -X DELETE \
+    --user "${SEC_TOKEN}:${SEC_SECRET}" \
+    ${DST_API_URL}archive/$1 \
+    -s
+
+  return $?
+}
+
+###### MAIN Routine #####
+echo "===== Archive copy to zone =====" >> ${LOGFILE}
+echo "`date` Archive copy to zone start" >> ${LOGFILE}
+
+# コピー元アーカイブリストを取得
+get_src_archive_list |\
+  while IFS=' ' read ARCHIVE_ID ARCHIVE_SIZEMB ARCHIVE_SRCDISK_NAME ARCHIVE_NAME ; do
+    # アーカイブ1つずつに対してコピー処理を開始。
+    COPY_IS_ERROR=0
+
+    # アーカイブを転送先ゾーンにコピー。
+    echo "`date` Archive copy start" >> ${LOGFILE}
+    echo "ARCHIVE_ID: ${ARCHIVE_ID}" >> ${LOGFILE}
+    echo "ARCHIVE_NAME: ${ARCHIVE_NAME}" >> ${LOGFILE}
+    echo "ARCHIVE_SIZEMB: ${ARCHIVE_SIZEMB}" >> ${LOGFILE}
+    echo "ARCHIVE_SRCDISK_NAME: ${ARCHIVE_SRCDISK_NAME}" >> ${LOGFILE}
+    echo "ARCHIVE_SRC_ZONE: ${SRC_ZONE}" >> ${LOGFILE}
+    echo "ARCHIVE_DST_ZONE: ${DST_ZONE}" >> ${LOGFILE}
+
+    TMP_PREFIX="$RANDOM"
+    TMP_ARCHIVE_JSON="/root/bin/${TMP_PREFIX}.archive.json"
+
+    copy_archive_to_zone ${ARCHIVE_ID} ${ARCHIVE_SIZEMB} \
+       "${ARCHIVE_SRCDISK_NAME}" ${TMP_ARCHIVE_JSON} "${ARCHIVE_NAME}"
+
+    # アーカイブのレスポンスが空だったら、次のアーカイブコピーへ。
+    if [ ! -s ${TMP_ARCHIVE_JSON} ]; then
+      echo "ARCHIVE_ID: ${ARCHIVE_ID} copy response error" >> ${LOGFILE}
+      continue
+    fi
+
+    # コピー先アーカイブIDを取得
+    DST_ARCHIVE_ID=`jq -r .Archive.ID < ${TMP_ARCHIVE_JSON}`
+
+    # コピー先アーカイブIDが取得できなかったら、次のアーカイブコピーへ。
+    if [ -z "${DST_ARCHIVE_ID}" ]; then
+      echo "DST_ARCHIVE_ID is null" >> ${LOGFILE}
+      continue
+    else
+      echo "DST_ARCHIVE_ID: ${DST_ARCHIVE_ID}" >> ${LOGFILE}
+    fi
+
+    # 転送完了を待つ。
+    #   さくらのクラウドのアーカイブ機能は、1ゾーンあたり同時4実行という
+    #   制約があるため、1つずつ転送し、転送完了してから次のアーカイブを
+    #   転送する。
+    WAIT_COUNT=0
+    WAIT_MAX_COUNT=360
+    WAIT_SLEEP_TIME=30
+
+    while :
+    do
+      AVAILABILITY=`get_dst_archive_availability ${DST_ARCHIVE_ID}`
+
+      # アーカイブ有効状態がnullだったら、次のアーカイブコピーへ。
+      if [ -z "${AVAILABILITY}" ]; then
+        echo "Archive availability string is null" >> ${LOGFILE}
+        COPY_IS_ERROR=1
+        break
+      fi
+
+      # アーカイブ転送が完了したら抜ける。
+      if [ "${AVAILABILITY}" == "available" ] ; then
+        break
+      fi
+
+      # アーカイブ転送が完了していないので、スリープして再チェックへ。
+      sleep ${WAIT_SLEEP_TIME}
+      echo "waiting($WAIT_COUNT)..." >> ${LOGFILE}
+      WAIT_COUNT=`expr $WAIT_COUNT + 1`
+
+      # 転送が3時間で完了しなかったら、タイムアウトして次の処理へ。
+      if [ $WAIT_COUNT -ge ${WAIT_MAX_COUNT} ] ; then
+        echo "Archive copy does not finish." >> ${LOGFILE}
+        echo "ARCHIVE_NAME: ${ARCHIVE_NAME}" >> ${LOGFILE}
+        COPY_IS_ERROR=1
+        break
+      fi
+    done
+
+    # 転送完了しなかった場合は、コピー先アーカイブの削除をせずに次のアーカイブコピーへ。
+    if [ ${COPY_IS_ERROR} -eq 1 ] ; then
+      continue
+    else
+      echo "`date` Archive copy finished" >> ${LOGFILE}
+    fi
+
+    # コピー先のアーカイブリストを取得
+    get_dst_archive_list ${ARCHIVE_SRCDISK_NAME} |\
+      sort -k2 -r |\
+      while read OLD_ARCHIVE_ID OLD_ARCHIVE_CREATEDAT OLD_ARCHIVE_NAME1 OLD_ARCHIVE_NAME2 ; do
+        OLD_ARCHIVE_NAME="${OLD_ARCHIVE_NAME1} ${OLD_ARCHIVE_NAME2}"
+
+        # コピーしたばかりの新しいアーカイブは削除しない
+        if [ "${OLD_ARCHIVE_ID}" == "${DST_ARCHIVE_ID}" ] ; then
+          echo "ARCHIVE_ID: ${OLD_ARCHIVE_ID} is latest, so not delete" >> ${LOGFILE}
+          continue
+        fi
+
+        # 古いアーカイブを削除
+        echo "`date` Archive delete start" >> ${LOGFILE}
+        echo "OLD_ARCHIVE_ID: ${OLD_ARCHIVE_ID}" >> ${LOGFILE}
+        echo "OLD_ARCHIVE_NAME: ${OLD_ARCHIVE_NAME}" >> ${LOGFILE}
+        echo "OLD_ARCHIVE_CREATEDAT: ${OLD_ARCHIVE_CREATEDAT}" >> ${LOGFILE}
+
+        delete_archive ${OLD_ARCHIVE_ID}
+
+        echo "`date` Archive delete end" >> ${LOGFILE}
+      done
+
+    rm -rf ${TMP_ARCHIVE_JSON}
+  done
+
+echo "`date` Archive copy to zone complete" >> ${LOGFILE}
+
+# EOF
