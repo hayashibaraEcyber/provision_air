@@ -2,6 +2,7 @@
 - include: swap.yml
 - include: package.yml
 - include: selinux.yml
+- include: dir.yml
 - include: lang.yml
 - include: users.yml
 - include: sshd.yml

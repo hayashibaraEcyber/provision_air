@@ -1,0 +1,10 @@
+# 必要なディレクトリの作成時は随時追加
+- name: /root/bin ディレクトリ作成
+  file:
+    path: /root/bin
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+  tags: dir
+

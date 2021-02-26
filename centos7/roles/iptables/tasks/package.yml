@@ -24,3 +24,20 @@
   tags: 
    - iptables
    - package
+
+- name: at 追加
+  yum:
+    name: at
+    state: latest
+  tags: 
+   - iptables
+   - package
+
+- name: atd 起動
+  service:
+    name: atd
+    state: restarted
+    enabled: yes
+  tags: 
+   - iptables
+   - package
