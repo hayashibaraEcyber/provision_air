@@ -6,18 +6,14 @@
 127.0.0.1
 
 [all:vars]
-cms_host_name=production-cms-host
-cms_server_ip=127.0.0.1
-cms_doc_root=production-cms
+# 各変数 本番環境構築の際は書き換える
 
-web_host_name=production-web-host
-web_server_ip=127.0.0.1
-web_doc_root=production-web
-
-# 各変数
-
-# MariaDBのパスワード 本番環境構築の際は書き換える
+# MariaDBのパスワード
 mariadb_root_password=12345678
+
+# MackerelのAPIキー
+mackerel_apikey_cms=cms_xxx
+mackerel_apikey_web=web_xxx
 
 # ログ転送のトークン/シークレット
 sakura_sec_token=token_xxx
@@ -26,13 +22,20 @@ sakura_sec_secret=secret_xxx
 sakura_src_zone=is1a
 sakura_dst_zone=tk1a
 
-# iptables IP群
-ip_ecyber=124.110.63.4
+# IPアドレス
+ip_ecyber=192.168.33.11
+ip_provision=192.168.33.11
 ip_customer=202.21.163.142
 ip_cms_server=153.120.134.67
-ip_air_server=133.242.51.69
+ip_web_server=133.242.51.69
 ip_sakura_monitor=27.133.139.32/28
+# eth0 ネットワークアダプタ名
 eth0=eth0
 
-# MackerelのAPIキー
-mackerel_api_key=xxx
+# ホストネーム
+hostname_cms=production-cms-host
+hostname_web_server=production-web-host
+
+# ドキュメントルート
+doc_root_cms=develop-cms
+doc_root_web=develop-web

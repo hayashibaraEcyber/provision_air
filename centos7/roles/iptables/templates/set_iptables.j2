@@ -5,7 +5,6 @@
 #	first written on: 2021/02/02	system@e-cyber.co.jp
 #	last updated on:  2021/02/02	system@e-cyber.co.jp
 #
-ETH0=eth0
 
 ### 初期化
 iptables -F
@@ -39,11 +38,13 @@ iptables -A INPUT -m state --state NEW -p tcp --dport 443 -j ACCEPT  # HTTPS
 ## TCP - SSH、SiteGuard管理画面(TCP/9443)は特定のIPアドレスからのみ許可
 iptables -A INPUT -s {{ ip_ecyber }} -m state --state NEW \
   -p tcp --dport 22 -j ACCEPT # SSH
+iptables -A INPUT -s {{ ip_provision }} -m state --state NEW \
+  -p tcp --dport 22 -j ACCEPT # SSH
 iptables -A INPUT -s {{ ip_customer }} -m state --state NEW \
   -p tcp --dport 22 -j ACCEPT # SSH
 iptables -A INPUT -s {{ ip_cms_server }} -m state --state NEW \
   -p tcp --dport 22 -j ACCEPT # SSH
-iptables -A INPUT -s {{ ip_air_server }} -m state --state NEW \
+iptables -A INPUT -s {{ ip_web_server }} -m state --state NEW \
   -p tcp --dport 22 -j ACCEPT # SSH
 iptables -A INPUT -s {{ ip_sakura_monitor }} -m state --state NEW \
   -p tcp --dport 22 -j ACCEPT # SSH

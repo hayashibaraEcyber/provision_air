@@ -1,3 +1,10 @@
+- name: jq 追加
+  yum: 
+    name:
+      - jq
+    state: latest
+  tags: archive
+
 - name: usacloudのリポジトリセットアップインストール
   get_url:
     url: http://releases.usacloud.jp/usacloud/repos/setup-yum.sh
@@ -9,6 +16,15 @@
 
 - name: usacloudインストール
   shell: /tmp/setup-yum.sh
+  tags: archive
+
+- name: usacloud config ディレクトリ作成
+  file:
+    path: /root/.usacloud/default
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
   tags: archive
 
 - name: usacloud config 作成とコピー
@@ -29,7 +45,7 @@
     mode: 0755
   tags: archive
 
-- name: crontab 設定 50 2 * * sat /root/bin/copy_archive_to_zone.sh > /dev/null
+- name: copy_archive_to_zone.sh crontab 設定
   cron:
     name: Copy Archive to Tokyo Zone
     minute: "50"

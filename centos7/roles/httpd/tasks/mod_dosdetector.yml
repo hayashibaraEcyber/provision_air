@@ -21,8 +21,8 @@
 
 - name: mod_dosdetector-fork のアーカイヴ取得
   get_url:
-    url: https://github.com/tkyk/mod_dosdetector-fork/archive/1.1.0.tar.gz
-    dest: /root/rpmbuild/SOURCES/mod_dosdetector-fork-1.1.0.tar.gz
+    url: "https://github.com/tkyk/mod_dosdetector-fork/archive/{{ mod_dosdetector_ver }}.tar.gz"
+    dest: "/root/rpmbuild/SOURCES/mod_dosdetector-fork-{{ mod_dosdetector_ver }}.tar.gz"
     mode: 0644
   tags:
     - httpd
@@ -30,7 +30,7 @@
 
 - name: mod_dosdetector SPECファイル 取得
   get_url:
-    url: https://raw.githubusercontent.com/tkyk/mod_dosdetector-fork/1.1.0/mod_dosdetector-fork.spec
+    url: "https://raw.githubusercontent.com/tkyk/mod_dosdetector-fork/{{ mod_dosdetector_ver }}/mod_dosdetector-fork.spec"
     dest: /root/rpmbuild/SPECS/mod_dosdetector-fork.spec
     mode: 0644
   tags:
@@ -47,7 +47,7 @@
 
 - name: mod_dosdetector インストール
   yum:
-    name: /root/rpmbuild/RPMS/x86_64/mod_dosdetector-fork-1.1.0-1.x86_64.rpm
+    name: "/root/rpmbuild/RPMS/x86_64/mod_dosdetector-fork-{{ mod_dosdetector_ver }}-1.x86_64.rpm"
     state: present
   tags:
     - httpd

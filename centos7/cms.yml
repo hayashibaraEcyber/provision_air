@@ -2,17 +2,19 @@
 - hosts: cms
   become: yes
   vars:
-    server_host_name: "{{ cms_host_name }}"
-    server_ip: "{{ cms_server_ip }}"
+    server_host_name: "{{ hostname_cms }}"
+    server_ip: "{{ ip_cms_server }}"
     # Apache設定
     max_request: 2048
-    doc_root: "{{ cms_doc_root }}"
+    doc_root: "{{ doc_root_cms }}"
     doc_root_owner: apache
     # PHP-FPM設定
     pm_max_children: 40
     pm_start_servers: 5
     pm_min_spare_servers: 5
     pm_max_spare_servers: 25
+    # MackerelのAPIキー
+    mackerel_apikey: "{{ mackerel_apikey_cms }}"
   roles:
     - common
     - httpd

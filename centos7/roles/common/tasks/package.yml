@@ -16,17 +16,14 @@
     state: latest
   tags: yum
 
-- name: glibc-common 言語パッケージ 追加
+- name: glibc-common 言語パッケージ/libselinux-python/elinks/lynx/sysstat 追加
   yum: 
     name:
       - glibc-common
-    state: latest
-  tags: yum
-
-- name: libselinux-python 追加
-  yum: 
-    name:
       - libselinux-python
+      - elinks
+      - lynx
+      - sysstat
     state: latest
   tags: yum
 
@@ -39,15 +36,6 @@
       - popt-devel
       - dbench
     enablerepo: epel
-    state: latest
-  tags: yum
-
-- name: elinks/lynx/sysstat 追加
-  yum: 
-    name:
-      - elinks
-      - lynx
-      - sysstat
     state: latest
   tags: yum
 
@@ -65,6 +53,17 @@
     state: absent
   tags: yum
 
-- name: Mackerel リポジトリの登録とインストール
-  shell: "curl -fsSL https://mackerel.io/file/script/setup-all-yum-v2.sh | MACKEREL_APIKEY={{ mackerel_api_key }} sh"
+- name: Mackerel インストールシェル取得
+  get_url:
+    url: https://mackerel.io/file/script/setup-all-yum-v2.sh
+    dest: /tmp/setup-all-yum-v2.sh
+    owner: root
+    group: root
+    mode: 0755
+  tags: yum
+
+- name: Mackerel インストール
+  shell: /tmp/setup-all-yum-v2.sh
+  environment:
+    MACKEREL_APIKEY: "{{ mackerel_apikey }}"
   tags: yum
