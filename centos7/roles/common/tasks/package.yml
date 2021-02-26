@@ -9,6 +9,18 @@
     state: latest
   tags: yum
 
+- name: yum キャッシュクリア
+  file:
+    path: /var/cache/yum/x86_64
+    state: absent
+  tags: yum
+
+- name: yum-clean-metadata
+  command: yum clean metadata
+  args:
+    warn: no
+  tags: yum
+
 - name: yum update all
   yum: 
     name:

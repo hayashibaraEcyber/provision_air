@@ -27,7 +27,7 @@ sakura_dst_zone=tk1a
 ip_ecyber=10.0.2.2
 # プロビジョニング環境
 ip_provision=192.168.33.11
-# 客先
+# 客先 複数時はカンマ区切り
 ip_customers=202.21.163.142,202.21.163.143
 # CMS
 ip_cms_server=153.120.134.67
@@ -42,6 +42,6 @@ eth0=eth0
 hostname_cms=develop-cms-host
 hostname_web=develop-web-host
 
-# ドキュメントルート
+# ドキュメントルート /var/www/ 以下
 doc_root_cms=develop-cms
 doc_root_web=develop-web
