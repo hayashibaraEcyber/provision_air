@@ -22,7 +22,6 @@
     regexp: "^logtarget ="
     line: "logtarget = /var/log/fail2ban.log"
     state: present
-    backup: yes
   tags:
    - fail2ban
 
@@ -39,7 +38,6 @@
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     state: present
-    backup: yes
   become: yes
   with_items:
     - { regexp: "^#?usedns =", line: "usedns = no" }

@@ -7,13 +7,12 @@
     - iptables
     - config
 
-- name: sshd_config 書き換え
+- name: iptables-config 書き換え
   lineinfile:
     dest: /etc/sysconfig/iptables-config
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     state: present
-    backup: yes
   become: yes
   with_items:
     - { regexp: "^#?IPTABLES_MODULES=", line: "IPTABLES_MODULES=\"ip_conntrack_ftp ip_nat_ftp\"" }
