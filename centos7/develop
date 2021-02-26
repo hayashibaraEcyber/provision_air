@@ -23,7 +23,7 @@ sakura_src_zone=is1a
 sakura_dst_zone=tk1a
 
 # IPアドレス
-ip_ecyber=192.168.33.11
+ip_ecyber=10.0.2.2
 ip_provision=192.168.33.11
 ip_customer=202.21.163.142
 ip_cms_server=153.120.134.67

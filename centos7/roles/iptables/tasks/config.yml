@@ -40,12 +40,14 @@
   shell: /root/bin/set_iptables.sh
   tags:
     - iptables
+    - iptables_exec
     - config
 
 - name: iptables-save 実行
   shell: iptables-save > /etc/sysconfig/iptables
   tags:
     - iptables
+    - iptables_exec
     - config
 
 - name: iptables 起動
