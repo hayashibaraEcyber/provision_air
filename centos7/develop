@@ -14,15 +14,17 @@ web_host_name=develop-web-host
 web_server_ip=192.168.33.12
 web_doc_root=develop-web
 
+# 各変数
+
+# MariaDBのパスワード 本番環境構築の際は書き換える
+mariadb_root_password=12345678
+
 # ログ転送のトークン/シークレット
 sakura_sec_token=token_xxx
 sakura_sec_secret=secret_xxx
 # ログ転送のゾーン
 sakura_src_zone=is1a
 sakura_dst_zone=tk1a
-
-# MariaDBのパスワード
-mariadb_root_password=12345678
 
 # iptables IP群
 ip_ecyber=192.168.33.11

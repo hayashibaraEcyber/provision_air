@@ -1,0 +1,90 @@
+﻿#!/bin/bash
+#	DBデータバックアップスクリプト backup_db.sh
+#		存在するデータベースをリストアップして、dumpし、gzip圧縮する。
+#
+#	mysqldumpは下記のオプションを付与している。
+#
+#　--add-drop-table - DROP TABLEステートメントをCREATE TABLEステートメントの前に追加する。
+#　--add-locks      - LOCK TABLESとUNLOCK TABLESステートメントで各テーブルダンプを囲む。
+#　--create-options - MySQL独特のオプションをCREATE TABLE文に含める。
+#　--disable-keys   - 行が全て挿入された後にインデックスが作成する。
+#　--extended-insert - 複数のVALUESリストを含む、複数行INSERT構文を使用する。
+#　--lock-tables    - dump時に該当データベースの全テーブルをReadロックする。
+#　--quick          - サーバから1行ずつ結果を取得して高速化する。
+#　--set-charset    - 出力にSET NAMES default_character_setを追加する。
+#　--single-transaction
+#　　　　InnoDBテーブルで、dumpする前にBEGIN (transaction開始) SQLを
+#　　　　使ってdumpするので、 ReadrockをかけずにBEGIN 発行時点の
+#　　　　データをdumpできる。
+#  --evnets         - イベントをdumpする。
+#
+#   ここでは、--databasesオプションをつけないことで、dumpデータに、
+#   CREATE DATABASE文を含めないようにする。
+#   （これにより、バックアップ時と異なるデータベース名へのデータインポート
+#   が可能となる。
+#
+#	MySQL 5.6では、mysql関連のコマンドで、-pオプションでパスワードを
+#	渡すと、標準エラー出力に
+#	'Warning: Using a password on the command line interface can be insecure.'
+#	というメッセージを出力する。
+#	これを防ぐため、環境変数MYSQL_PWDでパスワードを渡す。
+#
+#	first written on: 2020/07/21	ina128@inaba-serverdesign.jp
+#	last updated on:  2020/07/21    ina128@inaba-serverdesign.jp
+#
+
+# DBのrootパスワード ansibleのinventryに設定した値を埋込
+PASSWORD={{ mariadb_root_password }}
+USER=root
+BACKUP_DIR=/var/backup
+DATESTR=`date +"%Y%m%d-%H%M%S"`
+DATABASE_LIST_FILE=/root/bin/database_list.txt
+LOGFILE=/var/log/backup_db.log
+
+export LANG=C
+
+echo "===== DB Backup =====" >> ${LOGFILE}
+echo "`date` DB Backup start" >> ${LOGFILE}
+
+# データベースをリストアップする
+MYSQL_PWD=${PASSWORD} \
+mysql -Bse "show databases;" -u ${USER} \
+> ${DATABASE_LIST_FILE}
+
+# 各データベースのdumpを実行する。
+while read LINE
+do
+	BACKUP_FILE=${BACKUP_DIR}/dbdata_${LINE}_${DATESTR}.dump.gz
+
+	if [ $LINE = 'performance_schema' ] ; then
+		echo "`date` Database(${LINE}) dump begin" >> ${LOGFILE}
+
+		MYSQL_PWD=${PASSWORD} \
+		mysqldump -u ${USER} --single-transaction \
+    	${LINE} | gzip > ${BACKUP_FILE}
+
+		chmod 700 ${BACKUP_FILE}
+
+		echo "`date` Database(${LINE}) dump end" >> ${LOGFILE}
+	elif [ $LINE = 'information_schema' ] ; then
+        echo "`date` skip Database(${LINE})" >> ${LOGFILE}
+	else
+		echo "`date` Database(${LINE}) dump begin" >> ${LOGFILE}
+
+		MYSQL_PWD=${PASSWORD} \
+		mysqldump -u ${USER} --single-transaction --events \
+    	${LINE} | gzip > ${BACKUP_FILE}
+
+		chmod 700 ${BACKUP_FILE}
+
+		echo "`date` Database(${LINE}) dump end" >> ${LOGFILE}
+	fi
+done < ${DATABASE_LIST_FILE}
+
+# 1世代のみ保存するため、2時間以上前のバックアップファイルを削除する。
+find ${BACKUP_DIR} -type f -name "*.dump.gz" -mmin +120 |\
+xargs rm -fv >> ${LOGFILE}
+
+echo "`date` DB Backup complete" >> ${LOGFILE}
+
+# EOF

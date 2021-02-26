@@ -1,0 +1,21 @@
+- name: backup_db.sh コピー
+  template:
+    src: backup_db.j2
+    dest: /root/bin/backup_db.sh
+    owner: root
+    group: root
+    mode: 0700
+  tags:
+    - backup
+    - mariadb
+
+- name: backup_db.sh crontab 設定
+  cron:
+    name: DB Backup
+    minute: "50"
+    hour: "23"
+    job: "/root/bin/backup_db.sh > /dev/null"
+    state: present
+  tags:
+    - backup
+    - mariadb
