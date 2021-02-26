@@ -23,11 +23,17 @@ sakura_src_zone=is1a
 sakura_dst_zone=tk1a
 
 # IPアドレス
+# 自社
 ip_ecyber=10.0.2.2
+# プロビジョニング環境
 ip_provision=192.168.33.11
-ip_customer=202.21.163.142
+# 客先
+ip_customers=202.21.163.142,202.21.163.143
+# CMS
 ip_cms_server=153.120.134.67
+# 公開サーバー
 ip_web_server=133.242.51.69
+# Sakura SiteGuard 
 ip_sakura_monitor=27.133.139.32/28
 # eth0 ネットワークアダプタ名
 eth0=eth0

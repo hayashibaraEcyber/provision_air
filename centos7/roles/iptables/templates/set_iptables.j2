@@ -40,8 +40,10 @@ iptables -A INPUT -s {{ ip_ecyber }} -m state --state NEW \
   -p tcp --dport 22 -j ACCEPT # SSH
 iptables -A INPUT -s {{ ip_provision }} -m state --state NEW \
   -p tcp --dport 22 -j ACCEPT # SSH
+{% for ip_customer in ip_customers.split(',') %}
 iptables -A INPUT -s {{ ip_customer }} -m state --state NEW \
   -p tcp --dport 22 -j ACCEPT # SSH
+{% endfor %}
 iptables -A INPUT -s {{ ip_cms_server }} -m state --state NEW \
   -p tcp --dport 22 -j ACCEPT # SSH
 iptables -A INPUT -s {{ ip_web_server }} -m state --state NEW \
