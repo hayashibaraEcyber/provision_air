@@ -1,0 +1,21 @@
+- name: nginx リポジトリ コピー
+  copy:
+    src: nginx.repo
+    dest: /etc/yum.repos.d/nginx.repo
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - nginx
+    - package
+
+- name: nginx 追加
+  yum: 
+    name:
+      - nginx
+    # enablerepo: nginx
+    state: latest
+  tags:
+    - nginx
+    - package
+

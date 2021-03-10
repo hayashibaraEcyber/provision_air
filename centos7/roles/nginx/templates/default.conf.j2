@@ -1,0 +1,27 @@
+{% for domain in proxy_domain_arr %}
+#{{ domain }}
+server {
+  listen       80;
+    
+	#下記SSL設定部分は、実際にはコメントアウトを取って有効にする
+	listen　443 ssl;
+	ssl　on;
+  ssl_certificate      /etc/nginx/ssl/{{ domain }}/{{ domain }}.crt;
+  ssl_certificate_key  /etc/nginx/ssl/{{ domain }}/{{ domain }}.key;
+  ssl_protocols       all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1;
+	ssl_prefer_server_ciphers on;
+  ssl_ciphers         'ECDH !aNULL !eNULL !SSLv2 !SSLv3';
+	
+  #下記server_nameはドメイン名{{ domain }}にする
+	server_name   {{ domain }};
+
+  access_log /var/log/nginx/{{ domain }}-access.log;
+  error_log /var/lognginx/{{ domain }}-error.log;
+
+  location / {
+    root   /var/www/html;
+    index  index.html index.htm;
+  }
+}
+
+{% endfor %}

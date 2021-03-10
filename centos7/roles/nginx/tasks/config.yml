@@ -1,0 +1,69 @@
+- name: SSLディレクトリ用ドメインを変数に切り分け
+  set_fact:
+    proxy_domain_arr: "{{ proxy_domains.split(',') }}"
+  tags:
+    - nginx
+    - config
+
+- name: SSLディレクトリ用ドメインを変数確認
+  debug:
+    msg: "{{ proxy_domain_arr }}"
+  tags:
+    - nginx
+    - config
+
+- name: SSL用のディレクトリ 作成
+  file:
+    path: "etc/nginx/ssl/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+  with_items:
+    - "{{ proxy_domain_arr }}"
+  tags:
+    - nginx
+    - config
+
+- name: nginx confファイルの退避
+  shell: mv default.conf default.conf.default
+  args:
+    chdir: /etc/nginx/conf.d
+    creates: default.conf.default
+  ignore_errors: yes
+  tags:
+    - nginx
+    - config
+
+- name: nginx confファイル 作成/コピー
+  template:
+    src: default.conf.j2
+    dest: "/etc/nginx/conf.d/{{ proxy_default_conf_file }}"
+    owner: root
+    group: root
+    mode: 0644
+  ignore_errors: yes
+  tags:
+    - nginx
+    - config
+
+- name: proxy.confファイル 作成/コピー
+  template:
+    src: proxy.conf.j2
+    dest: /etc/nginx/conf.d/proxy.conf
+    owner: root
+    group: root
+    mode: 0644
+  ignore_errors: yes
+  tags:
+    - nginx
+    - config
+
+- name: nginx 再起動
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  tags:
+    - nginx
+    - config

@@ -5,6 +5,9 @@
 [web]
 192.168.33.12
 
+[proxy]
+192.168.33.12
+
 [all:vars]
 # 各変数
 
@@ -45,3 +48,9 @@ hostname_web=develop-web-host
 # ドキュメントルート /var/www/ 以下
 doc_root_cms=develop-cms
 doc_root_web=develop-web
+
+
+# リバースプロキシのconfファイル名
+proxy_default_conf_file=www.example.com.conf
+# リバースプロキシのドメイン (複数はカンマ区切り)
+proxy_domains=ww1.example.com,ww2.example.com,ww3.example.com

@@ -1,0 +1,102 @@
+#www.showa-u.ac.jp
+upstream backend {
+  server www.showa-u.ac.jp;
+}
+
+server {
+  listen  0.0.0.0:80;
+  server_name  www.showa-u.ac.jp;
+
+  location / {
+    proxy_pass http://133.242.52.36;
+    root /var/www/html;
+    index  index.html index.htm;
+  }
+  
+  #昭和大学病院
+  location /SUH/ {
+    proxy_pass http://153.120.134.167/SUH/;
+    root /var/www/html/SUH/;
+    index  index.html index.htm;
+  }
+  #東病院
+  location /SUHE/ {
+    proxy_pass http://153.120.134.167/SUHE/;
+    root /var/www/html/SUHE/;
+    index  index.html index.htm;
+  }
+  #藤が丘病院
+  location /SUHF/ {
+    proxy_pass http://153.120.134.167/SUHF/;
+    root /var/www/html/SUHF/;
+    index  index.html index.htm;
+  }
+  #藤が丘リハビリテーション病院
+  location /SUHR/ {
+    proxy_pass http://153.120.134.167/SUHR/;
+    root /var/www/html/SUHR/;
+    index  index.html index.htm;
+  }
+  #横浜市北部病院
+  location /SUHY/ {
+    proxy_pass http://153.120.134.167/SUHY/;
+    root /var/www/html/SUHY/;
+    index  index.html index.htm;
+  }
+  #烏山病院
+  location /SUHK/ {
+    proxy_pass http://153.120.134.167/SUHK/;
+    root /var/www/html/SUHK/;
+    index  index.html index.htm;
+  }
+  #歯科病院
+  location /SUHD/ {
+    proxy_pass http://153.120.134.167/SUHD/;
+    root /var/www/html/SUHD/;
+    index  index.html index.htm;
+  }
+  #江東豊洲病院
+  location /SHKT/ {
+    proxy_pass http://153.120.134.167/SHKT/;
+    root /var/www/html/SHKT/;
+    index  index.html index.htm;
+  }
+  #豊洲クリニック
+  location /SUHC/ {
+    proxy_pass http://153.120.134.167/SUHC/;
+    root /var/www/html/SUHC/;
+    index  index.html index.htm;
+  }
+}
+
+#adm.showa-u.ac.jp
+upstream backend {
+  server adm.showa-u.ac.jp;
+}
+
+server {
+  listen  0.0.0.0:80;
+  server_name  adm.showa-u.ac.jp;
+
+  location / {
+    proxy_pass http://133.242.52.36;
+    root /var/www/adm.showa-u.ac.jp;
+    index  index.html index.htm;
+  }
+}
+
+#bluewinds-showa.jp
+upstream backend {
+  server bluewinds-showa.jp;
+}
+
+server {
+  listen  0.0.0.0:80;
+  server_name  bluewinds-showa.jp;
+
+  location / {
+    proxy_pass http://133.242.52.36;
+    root /var/www/bluewinds-showa.jp;
+    index  index.html index.htm;
+  }
+}

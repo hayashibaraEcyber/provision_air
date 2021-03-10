@@ -1,0 +1,21 @@
+# 公開サーバー
+- hosts: proxy
+  become: yes
+  vars:
+    server_host_name: "{{ hostname_web }}"
+    server_ip: "{{ ip_web_server }}"
+    # Apache設定
+    # max_request: 4096
+    # doc_root: "{{ doc_root_web }}"
+    # doc_root_owner: cypochi
+    # PHP-FPM設定
+    # pm_max_children: 80
+    # pm_start_servers: 10
+    # pm_min_spare_servers: 10
+    # pm_max_spare_servers: 55
+    # MackerelのAPIキー
+    mackerel_apikey: "{{ mackerel_apikey_web }}"
+  roles:
+    - common
+    - nginx
+    - iptables
