@@ -9,9 +9,16 @@
   ignore_errors: yes
   tags: swap
 
+- name: スワップ領域チェック 初期値
+  set_fact:
+    swap_needed : false
+  tags: swap
+
 - name: スワップ領域チェック結果取得(0ならtrue)
   set_fact:
     swap_needed : "{{ swap_size.stdout | int == 0 }}"
+  when:
+    - swap_size.stdout is defined
   tags: swap
 
 - name: スワップ領域チェック結果

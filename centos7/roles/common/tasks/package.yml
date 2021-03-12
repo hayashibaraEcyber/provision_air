@@ -28,11 +28,12 @@
     state: latest
   tags: yum
 
-- name: glibc-common 言語パッケージ/libselinux-python/elinks/lynx/sysstat 追加
+- name: glibc-common 言語パッケージ/libselinux-python/openssh-server/elinks/lynx/sysstat 追加
   yum: 
     name:
       - glibc-common
       - libselinux-python
+      - openssh-server
       - elinks
       - lynx
       - sysstat

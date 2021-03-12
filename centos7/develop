@@ -36,6 +36,8 @@ ip_customers=202.21.163.142,202.21.163.143
 ip_cms_server=153.120.134.67
 # 公開サーバー
 ip_web_server=133.242.51.69
+# proxyサーバー
+ip_proxy_server=133.242.51.69
 # Sakura SiteGuard 
 ip_sakura_monitor=27.133.139.32/28
 # eth0 ネットワークアダプタ名
@@ -44,6 +46,7 @@ eth0=eth0
 # ホストネーム
 hostname_cms=develop-cms-host
 hostname_web=develop-web-host
+hostname_proxy=develop-proxy-host
 
 # ドキュメントルート /var/www/ 以下
 doc_root_cms=develop-cms

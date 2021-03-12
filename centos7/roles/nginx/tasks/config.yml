@@ -67,3 +67,24 @@
   tags:
     - nginx
     - config
+
+- name: デフォルトのローテーションファイルの退避
+  shell: cp -p nginx nginx.default
+  args:
+    chdir: /etc/logrotate.d
+    creates: nginx.default
+  ignore_errors: yes
+  tags:
+    - nginx
+    - config
+
+- name: logrotate.d に nginx コピー
+  copy:
+    src: nginx.txt
+    dest: /etc/logrotate.d/nginx
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - nginx
+    - config
