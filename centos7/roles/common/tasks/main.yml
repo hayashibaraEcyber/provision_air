@@ -13,3 +13,4 @@
 - include: daemon.yml
 - include: clamav.yml
 - include: archive.yml
+- include: update.yml

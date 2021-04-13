@@ -1,0 +1,27 @@
+- name: パッケージ更新ディレクトリ作成
+  file:
+    path: /root/bin/packageupdate
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+  tags: update
+
+- name: pkg_update.sh コピー
+  copy:
+    src: clamdscan.sh
+    dest: /root/bin/packageupdate
+    owner: root
+    group: root
+    mode: 0755
+  tags: update
+
+- name: パッケージ更新 crontab 設定
+  cron:
+    name: Package Update
+    minute: "0"
+    hour: "1"
+    day: "8-14"
+    job: "/root/bin/packageupdate/pkg_update.sh"
+    state: present
+  tags: update

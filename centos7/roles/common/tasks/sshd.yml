@@ -20,7 +20,7 @@
     - { regexp: "^#?UseDNS", line: "UseDNS no" }
     - { regexp: "^#?AddressFamily", line: "AddressFamily inet" }
     - { regexp: "^#?DenyUsers", line: "DenyUsers toor administrator administrateur admin adm test guest info mysql user oracle" }
-    - { regexp: "^#?Subsystem sftp", line: "Subsystem sftp /usr/libexec/openssh/sftp-server -u 002"}
+    # - { regexp: "^#?Subsystem sftp", line: "Subsystem sftp /usr/libexec/openssh/sftp-server -u 002"}
   register: sshd_config_result
   tags: sshd
 
