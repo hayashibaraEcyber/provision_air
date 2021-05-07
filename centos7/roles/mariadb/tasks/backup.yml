@@ -1,3 +1,14 @@
+- name: /root/bin ディレクトリ作成
+  file:
+    path: /root/bin
+    state: directory
+    owner: root
+    group: root
+    mode: 0777
+  tags:
+    - backup
+    - mariadb
+
 - name: backup_db.sh コピー
   template:
     src: backup_db.j2

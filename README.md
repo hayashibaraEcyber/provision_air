@@ -97,7 +97,7 @@ vi provision_air/centos7/production
 
 ```
 cd /home/vagrant/provision_air/centos7/
-sudo ansible-playbook -i develp web.yml -u vagrant --ask-pass --ask-become-pass
+sudo ansible-playbook -i develop web.yml -u vagrant --ask-pass --ask-become-pass
 ```
 
 文法チェックと、設定が走りきることを確認
